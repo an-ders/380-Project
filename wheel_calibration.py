@@ -1,5 +1,5 @@
 import numpy as np
-from Constants import *  # Import all constants
+from constants import *  # Import all constants
 
 def wheel_calibration():
     # Constants

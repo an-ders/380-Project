@@ -1,8 +1,7 @@
 import cv2 as cv
 import numpy as np
-import time
 
-def main():
+def colour_calibration():
     # Initialize webcam
     cap = cv.VideoCapture(0)
 
@@ -34,10 +33,10 @@ def main():
         hsv = cv.cvtColor(frame, cv.COLOR_BGR2HSV)
         
         # Get HSV value at crosshair for different colors based on key press
-        key = cv.waitKey(1) & 0xFF
+        key = cv.waitKey(2) & 0xFF
         if key in [ord('r'), ord('g'), ord('b')]:
             # Get a 5x5 region around the center point
-            region = hsv[center_y-2:center_y+3, center_x-2:center_x+3]
+            region = hsv[center_y-2:center_y+2, center_x-2:center_x+2]
             
             # Calculate min and max values for each channel
             h_min, h_max = np.min(region[:,:,0]), np.max(region[:,:,0])
@@ -54,14 +53,12 @@ def main():
             print(f"\nFor use in code ({color_name}):")
             print(f"lower: np.array([{h_min}, {s_min}, {v_min}])")
             print(f"upper: np.array([{h_max}, {s_max}, {v_max}])")
-
-        cv.imshow('Colour Calibration', frame)
-
-        # Break loop on 'q' key press
-        if cv.waitKey(1) & 0xFF == ord('q'):
+        elif key == ord('q'):
             break
+    
+        cv.imshow('Colour Calibration', frame)
 
     cap.release()
     cv.destroyAllWindows()
 
-main()
+colour_calibration()

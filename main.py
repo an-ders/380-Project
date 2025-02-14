@@ -1,41 +1,20 @@
 import cv2 as cv
 import numpy as np
 import time
-
-FPS = 10
-
-def adjust_left_wheel(speed):
-        return speed
-
-def adjust_right_wheel(speed):
-    return speed
-
-def drive(left, right):
-    return
+from constants import *
 
 def main():
     # Initialize webcam
     cap = cv.VideoCapture(0)
 
     # Set video parameters
-    cap.set(cv.CAP_PROP_FRAME_WIDTH, 640)
-    cap.set(cv.CAP_PROP_FRAME_HEIGHT, 480)
+    cap.set(cv.CAP_PROP_FRAME_WIDTH, FRAME_WIDTH)
+    cap.set(cv.CAP_PROP_FRAME_HEIGHT, FRAME_HEIGHT)
     cap.set(cv.CAP_PROP_FPS, FPS)
 
     # Define HSV ranges for colors
     # Red has two ranges due to how it wraps around in HSV
-    red_range = {
-        'lower': np.array([0, 220, 220]), 
-        'upper': np.array([60, 255, 255])
-    }
-    green_range = {
-        'lower': np.array([40, 200, 40]),
-        'upper': np.array([80, 255, 255])
-    }
-    blue_range = {
-        'lower': np.array([100, 100, 100]),
-        'upper': np.array([130, 255, 255])
-    }
+    
 
     while True:
         # Add a delay to control frame rate (e.g., 10 FPS)
@@ -47,7 +26,7 @@ def main():
             break
 
         # Resize frame for consistency
-        frame = cv.resize(frame, (480, 480))
+        frame = cv.resize(frame, (FRAME_WIDTH, FRAME_HEIGHT))
 
         # Convert to HSV color space
         hsv = cv.cvtColor(frame, cv.COLOR_BGR2HSV)
@@ -58,9 +37,9 @@ def main():
         # red_mask2 = cv.inRange(hsv, red_ranges[1]['lower'], red_ranges[1]['upper'])
 
         # red_mask = cv.bitwise_or(red_mask1, red_mask2)
-        red_mask = cv.inRange(hsv, red_range['lower'], red_range['upper'])
-        green_mask = cv.inRange(hsv, green_range['lower'], green_range['upper'])
-        blue_mask = cv.inRange(hsv, blue_range['lower'], blue_range['upper'])
+        red_mask = cv.inRange(hsv, RED_HSV_RANGE['lower'], RED_HSV_RANGE['upper'])
+        green_mask = cv.inRange(hsv, GREEN_HSV_RANGE['lower'], GREEN_HSV_RANGE['upper'])
+        blue_mask = cv.inRange(hsv, BLUE_HSV_RANGE['lower'], BLUE_HSV_RANGE['upper'])
 
         # Apply mask to isolate green regions
         red_regions = cv.bitwise_and(frame, frame, mask=red_mask)
@@ -106,7 +85,16 @@ def main():
 
 
         # -------------------------  GREEN ---------------------------------------------------
-
+        
+        
+        # Mask off top 100 pixels for both masks
+        green_mask[:100, :] = 0
+        red_mask[:FRAME_HEIGHT - 100, :] = 0  # Keep only bottom 100 pixels (frame height is 480)
+        
+        # Draw horizontal lines showing masked regions
+        cv.line(frame, (0, 100), (frame.shape[1], 100), (0, 255, 0), 2)  # Top green mask line at y=100
+        cv.line(frame, (0, 380), (frame.shape[1], 380), (0, 0, 255), 2)  # Bottom red mask line at y=380
+        
         # Find green pixels
         green_pixels = np.where(green_mask > 0)
         # Find red pixels
