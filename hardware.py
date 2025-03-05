@@ -4,6 +4,12 @@
 def drive(left, right):
     return
 
+def drive_forward():
+     return
+
+def drive_backward():
+     return
+
 def stop():
      return
 

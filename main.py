@@ -9,8 +9,12 @@ def main():
     cap = cv.VideoCapture(0)
 
     # Set video parameters
-    cap.set(cv.CAP_PROP_FRAME_WIDTH, FRAME_WIDTH)
-    cap.set(cv.CAP_PROP_FRAME_HEIGHT, FRAME_HEIGHT)
+    native_width = int(cap.get(cv.CAP_PROP_FRAME_WIDTH))
+    native_height = int(cap.get(cv.CAP_PROP_FRAME_HEIGHT))
+
+    # Set video parameters
+    cap.set(cv.CAP_PROP_FRAME_WIDTH, native_width)
+    cap.set(cv.CAP_PROP_FRAME_HEIGHT, native_height)
     cap.set(cv.CAP_PROP_FPS, FPS)
 
     # Define HSV ranges for colors
@@ -26,7 +30,7 @@ def main():
             break
 
         # Resize frame for consistency
-        frame = cv.resize(frame, (FRAME_WIDTH, FRAME_HEIGHT))
+        frame = cv.resize(frame, (native_width, native_height))
 
         # Convert to HSV color space
         hsv = cv.cvtColor(frame, cv.COLOR_BGR2HSV)
