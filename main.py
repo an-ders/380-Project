@@ -99,9 +99,10 @@ def main():
 
         # Draw horizontal lines showing masked regions
         # Top green mask line at y=100
-        cv.line(frame, (0, 100), (frame.shape[1], 100), (0, 255, 0), 2)
+        cv.line(frame, (0, 100), (native_width, 100), (0, 255, 0), 2)
         # Bottom red mask line at y=380
-        cv.line(frame, (0, 380), (frame.shape[1], 380), (0, 0, 255), 2)
+        cv.line(frame, (0, native_height - 100),
+                (native_width, native_height - 100), (0, 0, 255), 2)
 
         # Find green pixels
         green_pixels = np.where(green_mask > 0)

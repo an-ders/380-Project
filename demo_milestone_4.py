@@ -18,24 +18,9 @@ def demo():
     cap.set(cv.CAP_PROP_FRAME_HEIGHT, native_height)
     cap.set(cv.CAP_PROP_FPS, FPS)
 
-    # Phase 1: Drive forward for 3 seconds
-    print("Phase 1: Driving forward")
-    start_time = time.time()
-    drive_forward()
-    while time.time() - start_time < 3:
-        time.sleep(1/FPS)  # Small delay to prevent CPU overload
-    
-    # Phase 2: Drive backward for 3 seconds
-    print("Phase 2: Driving backward")
-    start_time = time.time()
-    drive_backward()
-    while time.time() - start_time < 3:
-        time.sleep(1/FPS)
-
-    # Phase 3: Drive forward until red is detected
-    print("Phase 3: Driving forward until red detection")
+    # Phase 1: Wait for red line detection
+    print("Phase 1: Waiting for red line")
     while True:
-        drive_forward()
         ret, frame = cap.read()
         if not ret:
             print("Failed to capture frame")
@@ -45,22 +30,34 @@ def demo():
         hsv = cv.cvtColor(frame, cv.COLOR_BGR2HSV)
         red_mask = cv.inRange(hsv, RED_HSV_RANGE['lower'], RED_HSV_RANGE['upper'])
         
-        # Check if red is detected (if there are any white pixels in the mask)
+        # Check if red is detected
         if np.any(red_mask > 0):
-            print("Red detected! Stopping and turning...")
-            stop()  # Stop before turning
-            turn()  # Call the turn function
+            print("Red detected! Starting movement sequence...")
             break
 
-        # Add a small delay to control frame rate
         time.sleep(1/FPS)
-
-        # Allow manual interrupt
         if cv.waitKey(1) & 0xFF == ord('q'):
             break
 
-    # Cleanup
+    # Phase 2: Drive forward for 3 seconds
+    print("Phase 2: Driving forward")
+    start_time = time.time()
+    drive_forward()
+    while time.time() - start_time < 3:
+        time.sleep(1/FPS)
+
+    # Phase 3: Stop and turn
+    print("Phase 3: Turning")
     stop()
+    turn()
+
+    # Phase 4: Drive backward
+    print("Phase 4: Driving backward")
+    drive_backward()
+    time.sleep(3)  # Drive backward for 3 seconds
+    stop()
+
+    # Cleanup
     cap.release()
     cv.destroyAllWindows()
 
