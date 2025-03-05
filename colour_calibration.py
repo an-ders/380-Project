@@ -5,9 +5,12 @@ def colour_calibration():
     # Initialize webcam
     cap = cv.VideoCapture(0)
 
+    native_width = int(cap.get(cv.CAP_PROP_FRAME_WIDTH))
+    native_height = int(cap.get(cv.CAP_PROP_FRAME_HEIGHT))
+
     # Set video parameters
-    cap.set(cv.CAP_PROP_FRAME_WIDTH, 640)
-    cap.set(cv.CAP_PROP_FRAME_HEIGHT, 480)
+    cap.set(cv.CAP_PROP_FRAME_WIDTH, native_width)
+    cap.set(cv.CAP_PROP_FRAME_HEIGHT, native_height)
 
     while True:
         ret, frame = cap.read()
@@ -15,8 +18,8 @@ def colour_calibration():
             print("Failed to capture frame")
             break
 
-        # Resize frame for consistency
-        frame = cv.resize(frame, (480, 480))
+        # Resize frame to native resolution
+        frame = cv.resize(frame, (native_width, native_height))
 
         # Get frame dimensions
         height, width = frame.shape[:2]
