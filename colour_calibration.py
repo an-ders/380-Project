@@ -54,8 +54,8 @@ def colour_calibration():
             
             print(f"\nHSV Ranges for {color_name} at crosshair:")
             print(f"\nFor use in code ({color_name}):")
-            print(f"lower: np.array([{h_min}, {s_min}, {v_min}])")
-            print(f"upper: np.array([{h_max}, {s_max}, {v_max}])")
+            print(f"'lower': np.array([{h_min}, {s_min}, {v_min}])")
+            print(f"'upper': np.array([{h_max}, {s_max}, {v_max}])")
         elif key == ord('q'):
             break
     
