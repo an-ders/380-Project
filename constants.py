@@ -27,8 +27,10 @@ RIGHT_WHEEL_OFFSET = 1
 # }
 
 RED_HSV_RANGE = {
-    'lower': np.array([50, 180, 200]),
-    'upper': np.array([190, 255, 255])
+    # 'lower': np.array([50, 180, 200]),
+    # 'upper': np.array([190, 255, 255])
+    'lower': np.array([0, 150, 245]),
+    'upper': np.array([70, 255, 255])
 }
 GREEN_HSV_RANGE = {
     'lower': np.array([15, 70, 120]),
