@@ -1,5 +1,7 @@
 import numpy as np
 
+ENV = "TEST"
+
 FPS = 10
 FRAME_WIDTH = 480
 FRAME_HEIGHT = 480

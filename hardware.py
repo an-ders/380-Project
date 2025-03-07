@@ -1,12 +1,21 @@
-
+from constants import *
+from test_classes import *
 from gpiozero import PWMOutputDevice, DigitalOutputDevice
 
-IN1 = DigitalOutputDevice(17)  # GPIO 17 (Pin 11) -> Motor 1 Forward
-IN2 = DigitalOutputDevice(27)  # GPIO 27 (Pin 13) -> Motor 1 Backward
-IN3 = DigitalOutputDevice(23)  # GPIO 23 (Pin 16) -> Motor 2 Forward
-IN4 = DigitalOutputDevice(24)  # GPIO 24 (Pin 18) -> Motor 2 Backward
-ENA = PWMOutputDevice(12)  # GPIO 12 (Pin 32) -> PWM for Motor A (PWM0)
-ENB = PWMOutputDevice(13)  # GPIO 13 (Pin 33) -> PWM for Motor B (PWM1)
+IN1 = TestDevice(17)  # GPIO 17 (Pin 11) -> Motor 1 Forward
+IN2 = TestDevice(27)  # GPIO 27 (Pin 13) -> Motor 1 Backward
+IN3 = TestDevice(23)  # GPIO 23 (Pin 16) -> Motor 2 Forward
+IN4 = TestDevice(24)  # GPIO 24 (Pin 18) -> Motor 2 Backward
+ENA = TestDevice(12)  # GPIO 12 (Pin 32) -> PWM for Motor A (PWM0)
+ENB = TestDevice(13)  # GPIO 13 (Pin 33) -> PWM for Motor B (PWM1)
+
+if ENV != "TEST":
+    IN1 = DigitalOutputDevice(17)  # GPIO 17 (Pin 11) -> Motor 1 Forward
+    IN2 = DigitalOutputDevice(27)  # GPIO 27 (Pin 13) -> Motor 1 Backward
+    IN3 = DigitalOutputDevice(23)  # GPIO 23 (Pin 16) -> Motor 2 Forward
+    IN4 = DigitalOutputDevice(24)  # GPIO 24 (Pin 18) -> Motor 2 Backward
+    ENA = PWMOutputDevice(12)  # GPIO 12 (Pin 32) -> PWM for Motor A (PWM0)
+    ENB = PWMOutputDevice(13)  # GPIO 13 (Pin 33) -> PWM for Motor B (PWM1)
 
 MAX_SPEED = 0.6
 
