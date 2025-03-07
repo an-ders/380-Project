@@ -4,6 +4,10 @@ import time
 from constants import *
 from hardware import *
 
+STRAIGHT_SPEED = 0.25
+TURN_SPEED = 0.125
+INTERVAL_TIME = 1
+
 
 def demo():
     # Initialize webcam
@@ -28,8 +32,9 @@ def demo():
 
         # Convert to HSV and create red mask
         hsv = cv.cvtColor(frame, cv.COLOR_BGR2HSV)
-        red_mask = cv.inRange(hsv, RED_HSV_RANGE['lower'], RED_HSV_RANGE['upper'])
-        
+        red_mask = cv.inRange(
+            hsv, RED_HSV_RANGE['lower'], RED_HSV_RANGE['upper'])
+
         # Check if red is detected
         if np.any(red_mask > 0):
             print("Red detected! Starting movement sequence...")
@@ -42,23 +47,29 @@ def demo():
     # Phase 2: Drive forward for 3 seconds
     print("Phase 2: Driving forward")
     start_time = time.time()
-    drive_forward()
-    while time.time() - start_time < 3:
+    drive_motors(STRAIGHT_SPEED)
+    while time.time() - start_time < INTERVAL_TIME:
         time.sleep(1/FPS)
 
     # Phase 3: Stop and turn
     print("Phase 3: Turning")
-    stop()
-    turn()
+    drive_motors(TURN_SPEED, -TURN_SPEED)
+    start_time = time.time()
+    while time.time() - start_time < INTERVAL_TIME:
+        time.sleep(1/FPS)
 
     # Phase 4: Drive backward
     print("Phase 4: Driving backward")
-    drive_backward()
-    time.sleep(3)  # Drive backward for 3 seconds
-    stop()
+    drive_motors(-STRAIGHT_SPEED)
+    start_time = time.time()
+    while time.time() - start_time < INTERVAL_TIME:
+        time.sleep(1/FPS)
+
+    stop_motors()
 
     # Cleanup
     cap.release()
     cv.destroyAllWindows()
+
 
 demo()

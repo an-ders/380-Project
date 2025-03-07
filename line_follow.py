@@ -4,6 +4,8 @@ import time
 from constants import *
 from hardware import *
 
+MAX_SPEED = 0.6
+
 def main():
     # Initialize webcam
     cap = cv.VideoCapture(0)
@@ -64,8 +66,7 @@ def main():
             right_speed = np.clip(right_speed, 0, 1)
 
             # Set motor speeds
-            set_left_motor_speed(left_speed)
-            set_right_motor_speed(right_speed)
+            drive_motors(left_speed * MAX_SPEED, right_speed * MAX_SPEED)
 
             # Draw debug visualization
             cv.circle(frame, (native_width - 50, int(red_center_y)), 5, (0, 0, 255), -1)
@@ -78,8 +79,7 @@ def main():
             print(f"Motor speeds - Left: {left_speed:.2f}, Right: {right_speed:.2f}")
         else:
             # If no red line is detected, stop motors
-            set_left_motor_speed(0)
-            set_right_motor_speed(0)
+            stop_motors()
             print("No red line detected")
 
         # Display the frame
@@ -97,8 +97,7 @@ def main():
             break
 
     # Cleanup
-    set_left_motor_speed(0)
-    set_right_motor_speed(0)
+    stop_motors()
     cap.release()
     cv.destroyAllWindows()
 
