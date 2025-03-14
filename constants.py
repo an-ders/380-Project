@@ -1,6 +1,7 @@
 import numpy as np
 
 ENV = "TEST"
+SLEEP_TIME = 1
 
 FPS = 10
 FRAME_WIDTH = 480
