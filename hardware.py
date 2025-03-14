@@ -89,9 +89,9 @@ def stop_left_motor():
 # ----------- GRABBER -------------
 
 
-def pickup():
+def lower_arm():  # TODO by Shreya
     return
 
 
-def drop():
+def raise_arm():  # TODO by Shreya
     return
