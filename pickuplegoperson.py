@@ -1,6 +1,6 @@
 import img_processing as imgp
 from constants import BLUE_HSV_RANGE
-from hardware import *
+from hardware.hardware import *
 from time import sleep
 
 def get_center(x_min, x_max, y_min, y_max):
@@ -19,7 +19,7 @@ def get_current_location(img):
 
 def pick_up_lego_person_main():
     # TODO consider implementing feedback loop to ensure accurate control in this most critical and sensitive part of the program
-    img = imgp.read_camera()
+    img = imgp.read_camera() # TODO GET RID OF THIS
     x_min, x_max, y_min, y_max = get_color_location(img, BLUE_HSV_RANGE)
     target_center = get_center(x_min, x_max, y_min, y_max)
     curr_loc = get_current_location(img)  # TODO this should probably just be a constant

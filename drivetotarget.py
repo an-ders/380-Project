@@ -1,6 +1,6 @@
 """Module for part 1 of the program. Robot starts following the red line towards the target."""
 
-from hardware import *
+from hardware.hardware import *
 import img_processing as imgp
 from math import log
 
@@ -26,11 +26,10 @@ def get_line_len(img):
     line_len = imgp.get_length(midpoint_1, midpoint_2)
     return line_len
 
-def drive_to_target_main():
+def drive_to_target_main(img):
     total_turns = 0
     while total_turns < MAX_TURNS:
-        img = imgp.read_camera()
-        line_len = imgp.get_line_len(img)
+        line_len = get_line_len(img)
         if line_len < MIN_LEN:
             # TODO 90 degree turn program
             total_turns += 1
