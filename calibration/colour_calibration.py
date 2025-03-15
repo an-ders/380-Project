@@ -5,12 +5,13 @@ def colour_calibration():
     # Initialize webcam
     cap = cv.VideoCapture(0)
 
-    native_width = int(cap.get(cv.CAP_PROP_FRAME_WIDTH))
-    native_height = int(cap.get(cv.CAP_PROP_FRAME_HEIGHT))
-
+    # Get native resolution and swap width/height for portrait orientation
+    native_width = int(cap.get(cv.CAP_PROP_FRAME_HEIGHT))  # Swapped
+    native_height = int(cap.get(cv.CAP_PROP_FRAME_WIDTH))  # Swapped
+    
     # Set video parameters
-    cap.set(cv.CAP_PROP_FRAME_WIDTH, native_width)
-    cap.set(cv.CAP_PROP_FRAME_HEIGHT, native_height)
+    cap.set(cv.CAP_PROP_FRAME_WIDTH, native_height)  # Original height becomes width
+    cap.set(cv.CAP_PROP_FRAME_HEIGHT, native_width)  # Original width becomes height
 
     while True:
         ret, frame = cap.read()
@@ -18,8 +19,8 @@ def colour_calibration():
             print("Failed to capture frame")
             break
 
-        # Resize frame to native resolution
-        frame = cv.resize(frame, (native_width, native_height))
+        # Rotate frame 90 degrees counterclockwise
+        frame = cv.rotate(frame, cv.ROTATE_90_COUNTERCLOCKWISE)
 
         # Get frame dimensions
         height, width = frame.shape[:2]
