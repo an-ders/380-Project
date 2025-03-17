@@ -1,6 +1,6 @@
 """Module for part 1 of the program. Robot starts following the red line towards the target."""
 
-from hardware.hardware import *
+from hardware import *
 import img_processing as imgp
 from math import log
 

@@ -8,3 +8,9 @@ class TestDevice:
 
     def off():
         return
+
+
+class TestEncoder:
+    def __init__(self, pin, temp):
+        self.value = pin
+        self.steps = 0

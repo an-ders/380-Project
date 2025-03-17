@@ -3,10 +3,6 @@ import numpy as np
 import time
 from constants import *
 
-# init video code
-
-
-
 
 def main():
     # Initialize webcam
