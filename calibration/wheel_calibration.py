@@ -1,9 +1,10 @@
 import numpy as np
-from constants import *  # Import all constants
 
 def wheel_calibration():
     # Constants
-    TARGET_DISTANCE = 100  # cm - distance to drive
+    TARGET_DISTANCE = 120  # cm - distance to drive
+    TRACK_WIDTH = 16.25       # cm - distance between wheels
+
     
     print("Drive the robot forward", TARGET_DISTANCE, "cm")
     input("Press Enter after robot has completed driving...")
@@ -31,13 +32,7 @@ def wheel_calibration():
     
     speed_ratio = (turn_radius - TRACK_WIDTH/2) / (turn_radius + TRACK_WIDTH/2)
     
-    # Adjust wheel offsets based on which way robot deviated
-    if deviation > 0:  # Deviated right, left wheel too fast
-        new_left_offset = LEFT_WHEEL_OFFSET * speed_ratio
-        new_right_offset = RIGHT_WHEEL_OFFSET
-    else:  # Deviated left, right wheel too fast
-        new_left_offset = LEFT_WHEEL_OFFSET
-        new_right_offset = RIGHT_WHEEL_OFFSET * speed_ratio
+    print(speed_ratio)
         
     print(f"\nNew wheel offset factors:")
     print(f"Left wheel: {new_left_offset:.3f}")

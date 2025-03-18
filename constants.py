@@ -1,19 +1,19 @@
 import numpy as np
 
-FPS = 10
+FPS = 30
 
 # Robot Physical Constants
-TRACK_WIDTH = 15       # cm - distance between wheels
 WHEEL_DIAMETER = 6.5   # cm - diameter of wheels
 
 # Wheel Calibration Constants
 LEFT_WHEEL_OFFSET = 1
-RIGHT_WHEEL_OFFSET = 1
+RIGHT_WHEEL_OFFSET = 0.98
 
 # Camera Values
 RED_HSV_RANGE = {
-    'lower': np.array([0, 200, 200]),
-    'upper': np.array([40, 255, 255])
+    'lower': np.array([0, 100, 130]),
+    'upper': np.array([90, 255, 255])
+
 }
 GREEN_HSV_RANGE = {
     'lower': np.array([40, 200, 40]),

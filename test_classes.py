@@ -3,10 +3,10 @@ class TestDevice:
     def __init__(self, pin):
         self.value = pin
 
-    def on():
+    def on(self):
         return
 
-    def off():
+    def off(self):
         return
 
 
