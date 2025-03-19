@@ -1,9 +1,6 @@
-"""Module for part 1 of the program. Robot starts following the red line towards the target."""
 import cv2 as cv
-# from hardware import *
-import img_processing as imgp
-from math import log
 import numpy as np
+from math import log
 
 MAX_TURNS = 9
 
@@ -17,15 +14,15 @@ C = 0
 M = 1
 Y_INT = 0
 
+def get_real_path_len(line_len):
+    # TODO collect data to calibrate
+    path_len = M*line_len + Y_INT
+    return path_len
+
 # TODO TUNE ME - ZARA
 def get_optimal_speed(line_len):
     speed = A*log(line_len + B) + C
     return speed
-
-def get_path_len_from_line(line_len):
-    # TODO collect data to calibrate
-    path_len = M*line_len + Y_INT
-    return path_len
 
 def drive_to_target_main():
     # Initialize webcam
@@ -45,57 +42,60 @@ def drive_to_target_main():
     red_upper_2 = np.array([180, 255, 255])
 
     total_turns = 0
-    while True:
+    while total_turns < MAX_TURNS:
         # Capture frame
         ret, frame = cap.read()
         if not ret:
             print("Failed to capture frame")
             break
 
-        while total_turns < MAX_TURNS:
-            frame = cv.resize(frame, (480, 480))  # Resize frame for consistency
-            # frame = cv.rotate(frame, cv.ROTATE_90_COUNTERCLOCKWISE)  # Rotate because our camera is tilted
-            # TODO rotate
-            hsv = cv.cvtColor(frame, cv.COLOR_BGR2HSV)  # Convert to HSV color space
+        # Resize frame for consistency
+        frame = cv.resize(frame, (480, 480))
 
-            # Create masks for red color
-            mask1 = cv.inRange(hsv, red_lower, red_upper)
-            mask2 = cv.inRange(hsv, red_lower_2, red_upper_2)
-            mask = cv.bitwise_or(mask1, mask2)
+        # Convert to HSV color space
+        hsv = cv.cvtColor(frame, cv.COLOR_BGR2HSV)
 
-            # Apply mask to isolate red regions
-            red_regions = cv.bitwise_and(frame, frame, mask=mask) # Apply mask to isolate red regions
-            gray = cv.cvtColor(red_regions, cv.COLOR_BGR2GRAY)  # Convert the mask to grayscale for edge detection
-            cv.imshow('Red Line Detection', gray)
+        # Create masks for red color
+        mask1 = cv.inRange(hsv, red_lower, red_upper)
+        mask2 = cv.inRange(hsv, red_lower_2, red_upper_2)
+        mask = cv.bitwise_or(mask1, mask2)
 
-            # [*4] Apply Canny edge detection
-            edges = cv.Canny(gray, 50, 150)
-            # [*5] Use HoughLinesP to detect line segments
-            lines = cv.HoughLinesP(edges, 1, np.pi / 180, threshold=50, minLineLength=50, maxLineGap=10)
+        # Apply mask to isolate red regions
+        red_regions = cv.bitwise_and(frame, frame, mask=mask)
 
-            if lines is not None:
-                print("Red line detected")
-                # Extract (x, y) pairs
-                points = []
-                for line in lines:
-                    x1, y1, x2, y2 = line[0]  # Unpack correctly
-                    points.append((x1, y1))
-                    points.append((x2, y2))
-                # Find the highest and lowest y-value points
-                highest_point = min(points, key=lambda p: p[1])  # Point with smallest y
-                lowest_point = max(points, key=lambda p: p[1])   # Point with largest y
+        # Convert the mask to grayscale for edge detection
+        gray = cv.cvtColor(red_regions, cv.COLOR_BGR2GRAY)
 
-                # Draw a line between these two points
-                cv.line(frame, highest_point, lowest_point, (0, 255, 0), 2)
-                highest_y = min(highest_point[1])  # Find the smallest y-value
-                lowest_y = max(lowest_point[1])
+        # [*4] Apply Canny edge detection
+        edges = cv.Canny(gray, 50, 150)
+
+        # [*5] Use HoughLinesP to detect line segments
+        lines = cv.HoughLinesP(edges, 1, np.pi / 180, threshold=50, minLineLength=50, maxLineGap=10)
+
+        # Draw the detected lines on the original frame
+        points = []
+        if lines is not None:
+            for line in lines:
+                x1, y1, x2, y2 = line[0]  # Unpack line endpoints
+                points.append((x1, y1))
+                points.append((x2, y2))
+                cv.line(frame, (x1, y1), (x2, y2), (0, 255, 0), 2)  # Draw line in green
+            highest_point = min(points, key=lambda p: p[1])  # Point with smallest y
+            lowest_point = max(points, key=lambda p: p[1])   # Point with largest y
             
-                line_len = lowest_y - highest_y
-                print(line_len)
-                cv.line(frame, highest_point, lowest_point, (0, 255, 0), 2)
-                # Display the original frame with the drawn line
-                cv.imshow('Red Line Detection', frame)
-                # if line_len < MIN_LEN:
+            # Draw max and min positions
+            frame_width = frame.shape[1]  
+            cv.line(frame, (0, highest_point[1]), (frame_width, highest_point[1]), (255, 255, 0), 2)  # Cyan # Draw horizontal line at the highest y-value (topmost detected edge)
+            cv.line(frame, (0, lowest_point[1]), (frame_width, lowest_point[1]), (255, 255, 0), 2)  # Cyan # Draw horizontal line at the lowest y-value (bottommost detected edge)
+
+            # PATH LENGTH
+            line_len = lowest_point[1] - highest_point[1]
+            print(line_len)
+            path_len = get_real_path_len(line_len)
+            print(f"Digital Line Length: {line_len:.2f} | Real Line Length: {path_len:.2f}")
+            
+            # OUTPUTS   
+            # if line_len < MIN_LEN:
                 #     # TODO 90 degree turn program
                 #     total_turns += 1
                 # else:
@@ -103,9 +103,11 @@ def drive_to_target_main():
                 #     #offset = get_offset(img)  # TODO by Anders
                 #     #left_speed, right_speed = get_differential_speed(offset, speed)  # TODO by Anders
                 #     drive_motors(speed, speed)
-                print(line_len)
-            else:
-                print("No red line detected.")
+                
+        else:
+            print("No red line detected")
+
+        # Display the original frame with detected lines
         cv.imshow('Red Line Detection', frame)
 
         # Break loop on user interrupt (e.g., 'q' key press)

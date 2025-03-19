@@ -3,7 +3,6 @@ import cv2 as cv
 from constants import *
 
 def get_midpoint(p1, p2):
-    # Used by drivetotarget.py
     return (p1[0]+p2[0])/2, (p1[1]+p2[1])/2
     
 def get_length(p1, p2):
