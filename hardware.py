@@ -3,10 +3,10 @@ from test_classes import *
 from gpiozero import Motor, RotaryEncoder
 from time import time, sleep
 
-ENV = ""
+ENV = "TEST"
 
-right_motor = Motor(17, 27)  # GPIO 17 (Pin 11) -> Motor 1 Forward
-left_motor = Motor(23, 24)  # GPIO 27 (Pin 13) -> Motor 1 Backward
+right_motor = TestMotor(17, 27)  # GPIO 17 (Pin 11) -> Motor 1 Forward
+left_motor = TestMotor(23, 24)  # GPIO 27 (Pin 13) -> Motor 1 Backward
 # IN1 = TestDevice(17)  # GPIO 17 (Pin 11) -> Motor 1 Forward
 # IN2 = TestDevice(27)  # GPIO 27 (Pin 13) -> Motor 1 Backward
 # IN3 = TestDevice(23)  # GPIO 23 (Pin 16) -> Motor 2 Forward
@@ -17,8 +17,8 @@ encoder1 = TestEncoder(5, 6)
 encoder2 = TestEncoder(16, 26)
 
 if ENV != "TEST":
-    #right_motor = Motor(17, 27)  # GPIO 17 (Pin 11) -> Motor 1 Forward
-    #left_motor = Motor(23, 24)  # GPIO 27 (Pin 13) -> Motor 1 Backward
+    right_motor = Motor(17, 27)  # GPIO 17 (Pin 11) -> Motor 1 Forward
+    left_motor = Motor(23, 24)  # GPIO 27 (Pin 13) -> Motor 1 Backward
     left_encoder = RotaryEncoder(a = 5, b = 6, max_steps = 0)  # Encoder 1 (A=5, B=6)
     right_encoder = RotaryEncoder(a = 16, b = 26, max_steps = 0)  # Encoder 1 (A=16, B=26)
 

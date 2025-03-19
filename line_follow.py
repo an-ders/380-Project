@@ -42,14 +42,23 @@ def main():
             hsv, RED_HSV_RANGE['lower'], RED_HSV_RANGE['upper'])
         red_mask[:-100, :] = 0  # Keep only bottom 100 pixels
 
+        test = cv.inRange(
+            hsv, RED_HSV_RANGE['lower'], RED_HSV_RANGE['upper'])
+        
+        test[:-400, :] = 0  # Keep only bottom 100 pixels
+
         # Find red pixels in the bottom region
         red_pixels = np.where(red_mask > 0)
+        asd = np.where(test > 0)
 
         if len(red_pixels[1]) > 0:  # If red line is detected
             # Find max and min X coordinates of the red line
             max_x = np.max(red_pixels[1])
             min_x = np.min(red_pixels[1])
             red_center_x = (max_x + min_x) / 2
+
+            x_low = np.max(asd[1])
+            x_high = np.min(asd[1])
 
             # Calculate offset from center (-1 to 1)
             center_x = native_width // 2
@@ -62,19 +71,20 @@ def main():
             # Calculate motor speeds (0 to 1)
             base_speed = 0.4  # Base speed for forward motion
             if offset > 0:  # Red line is to the right
-                left_speed = base_speed * (1 - abs(exp_offset))
-                right_speed = base_speed
-            else:  # Red line is to the left
-                left_speed = base_speed
+                left_speed = base_speed 
                 right_speed = base_speed * (1 - abs(exp_offset))
+            else:  # Red line is to the left
+                left_speed = base_speed * (1 - abs(exp_offset))
+                right_speed = base_speed 
 
             # Set motor speeds
-            if min_x <= 1:
+            if x_low <= 1:
                 print("turn left")
-            elif max_x >= 718:
+            elif x_high >= 718:
                 print("turn right")
             else:
-                drive_motors(left_speed, right_speed)
+                print("straight")
+                #drive_motors(left_speed, right_speed)
 
             # # Draw debug visualization
             cv.circle(frame, (int(red_center_x), native_height - 50),
@@ -91,7 +101,7 @@ def main():
                 f"Motor speeds - Left: {left_speed:.2f}, Right: {right_speed:.2f}")
         else:
             # If no red line is detected, stop motors
-            stop_motors()
+            #stop_motors()
             print("No red line detected")
 
         # Display the frame (already in portrait orientation)
