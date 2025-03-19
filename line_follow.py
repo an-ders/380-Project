@@ -42,23 +42,33 @@ def main():
             hsv, RED_HSV_RANGE['lower'], RED_HSV_RANGE['upper'])
         red_mask[:-100, :] = 0  # Keep only bottom 100 pixels
 
+        hsv = cv.cvtColor(frame, cv.COLOR_BGR2HSV)
         test = cv.inRange(
             hsv, RED_HSV_RANGE['lower'], RED_HSV_RANGE['upper'])
-        
         test[:-400, :] = 0  # Keep only bottom 100 pixels
 
         # Find red pixels in the bottom region
         red_pixels = np.where(red_mask > 0)
         asd = np.where(test > 0)
-
+            
         if len(red_pixels[1]) > 0:  # If red line is detected
             # Find max and min X coordinates of the red line
             max_x = np.max(red_pixels[1])
             min_x = np.min(red_pixels[1])
             red_center_x = (max_x + min_x) / 2
 
-            x_low = np.max(asd[1])
-            x_high = np.min(asd[1])
+            x_low = np.min(asd[1])
+            x_high = np.max(asd[1])
+            print(x_low, x_high)
+        
+            if x_low <= 1:
+                print("turn left")
+                stop_motors()
+                continue
+            elif x_high >= 718:
+                print("turn right")
+                stop_motors()
+                continue
 
             # Calculate offset from center (-1 to 1)
             center_x = native_width // 2
@@ -78,13 +88,8 @@ def main():
                 right_speed = base_speed 
 
             # Set motor speeds
-            if x_low <= 1:
-                print("turn left")
-            elif x_high >= 718:
-                print("turn right")
-            else:
-                print("straight")
-                #drive_motors(left_speed, right_speed)
+            
+            #drive_motors(left_speed, right_speed)
 
             # # Draw debug visualization
             cv.circle(frame, (int(red_center_x), native_height - 50),
@@ -109,9 +114,9 @@ def main():
 
         # Calculate how long to wait to maintain FPS
         process_time = timer.time() - start_time
-        print(f"Process time: {process_time:.4f}s")
+        #print(f"Process time: {process_time:.4f}s")
         wait_time = max(1.0/FPS - process_time, 0)
-        print(f"Wait time: {wait_time:.4f}s")
+        #print(f"Wait time: {wait_time:.4f}s")
 
         # Break loop if 'q' is pressed
         if cv.waitKey(1) & 0xFF == ord('q'):
@@ -119,7 +124,7 @@ def main():
             break
 
     # Cleanup
-    stop_motors()
+    # stop_motors()
     cap.release()
     cv.destroyAllWindows()
 
