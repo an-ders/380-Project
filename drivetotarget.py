@@ -1,37 +1,44 @@
 import cv2 as cv
 import numpy as np
 from math import log
+from hardware import drive_motors
 
 MAX_TURNS = 9
 
-# TODO CALIBRATE ME (BELOW)
-MIN_LEN = 0.15  # m
-MAX_LEN = 1 # m
-MIN_SPEED = 0.1
-A = 1
-B = 0
-C = 0
-M = 1
-Y_INT = 0
+MIN_LEN = 0.1  # m
+MAX_LEN = 0.5 # m
+MIN_SPEED = 0.25
+MAX_SPEED = 0.55
+M = (MAX_SPEED-MIN_SPEED)/(MAX_LEN-MIN_LEN)
+B = MAX_SPEED-MAX_LEN*M
+REAL_M = 1
+REAL_B = 0
+
+def turn():
+    pass
 
 def get_real_path_len(line_len):
-    # TODO collect data to calibrate
-    path_len = M*line_len + Y_INT
+    path_len = REAL_M*line_len + REAL_B
     return path_len
 
 # TODO TUNE ME - ZARA
-def get_optimal_speed(line_len):
-    speed = A*log(line_len + B) + C
+def get_optimal_speed(path_len):
+    speed = M*path_len + B
     return speed
 
 def drive_to_target_main():
     # Initialize webcam
     cap = cv.VideoCapture(0, cv.CAP_DSHOW)
 
-    # [*1] Set resolution
-    cap.set(cv.CAP_PROP_FRAME_WIDTH, 640)  # Set width to 640 pixels
-    cap.set(cv.CAP_PROP_FRAME_HEIGHT, 480)  # Set height to 480 pixels
+    # Get native resolution and swap width/height for portrait orientation
+    native_width = int(cap.get(cv.CAP_PROP_FRAME_HEIGHT))  # Swapped
+    native_height = int(cap.get(cv.CAP_PROP_FRAME_WIDTH))  # Swapped
 
+    # Set video parameters
+    # Original height becomes width
+    cap.set(cv.CAP_PROP_FRAME_WIDTH, native_height)
+    # Original width becomes height
+    cap.set(cv.CAP_PROP_FRAME_HEIGHT, native_width)
     # [*2] Set frame rate
     cap.set(cv.CAP_PROP_FPS, 30)  # Set to 30 frames per second
 
@@ -50,7 +57,8 @@ def drive_to_target_main():
             break
 
         # Resize frame for consistency
-        frame = cv.resize(frame, (480, 480))
+        frame = cv.rotate(frame, cv.ROTATE_90_COUNTERCLOCKWISE)
+        # frame = cv.resize(frame, (480, 480))
 
         # Convert to HSV color space
         hsv = cv.cvtColor(frame, cv.COLOR_BGR2HSV)
@@ -90,19 +98,19 @@ def drive_to_target_main():
 
             # PATH LENGTH
             line_len = lowest_point[1] - highest_point[1]
-            print(line_len)
             path_len = get_real_path_len(line_len)
             print(f"Digital Line Length: {line_len:.2f} | Real Line Length: {path_len:.2f}")
             
             # OUTPUTS   
-            # if line_len < MIN_LEN:
-                #     # TODO 90 degree turn program
-                #     total_turns += 1
-                # else:
-                #     speed = get_optimal_speed(line_len)
+            if path_len < MIN_LEN:
+                turn()
+                total_turns += 1
+            else:
+                speed = get_optimal_speed(path_len)
+                print(speed)
                 #     #offset = get_offset(img)  # TODO by Anders
                 #     #left_speed, right_speed = get_differential_speed(offset, speed)  # TODO by Anders
-                #     drive_motors(speed, speed)
+                drive_motors(speed, speed)
                 
         else:
             print("No red line detected")
