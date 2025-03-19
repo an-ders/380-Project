@@ -1,5 +1,4 @@
 import img_processing as imgp
-from constants import BLUE_HSV_RANGE
 from hardware import *
 from time import sleep
 

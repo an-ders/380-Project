@@ -1,7 +1,7 @@
 import cv2 as cv
 import numpy as np
 import time
-from constants import *
+from hardware import *
 
 
 def main():

@@ -1,26 +1,25 @@
-from constants import *
-from test_classes import *
-from gpiozero import Motor, RotaryEncoder
-from time import time, sleep
+from test.test_classes import *
+from gpiozero import Motor, RotaryEncoder, Servo
+from time import time
+import numpy as np
 
 ENV = "TEST"
 
 right_motor = TestMotor(17, 27)  # GPIO 17 (Pin 11) -> Motor 1 Forward
 left_motor = TestMotor(23, 24)  # GPIO 27 (Pin 13) -> Motor 1 Backward
-# IN1 = TestDevice(17)  # GPIO 17 (Pin 11) -> Motor 1 Forward
-# IN2 = TestDevice(27)  # GPIO 27 (Pin 13) -> Motor 1 Backward
-# IN3 = TestDevice(23)  # GPIO 23 (Pin 16) -> Motor 2 Forward
-# IN4 = TestDevice(24)  # GPIO 24 (Pin 18) -> Motor 2 Backward
-# ENA = TestDevice(12)  # GPIO 12 (Pin 32) -> PWM for Motor A (PWM0)
-# ENB = TestDevice(13)  # GPIO 13 (Pin 33) -> PWM for Motor B (PWM1)
-encoder1 = TestEncoder(5, 6)
-encoder2 = TestEncoder(16, 26)
+left_encoder = TestEncoder(5, 6)
+right_encoder = TestEncoder(16, 26)
+servo = TestServo(22)
 
 if ENV != "TEST":
     right_motor = Motor(17, 27)  # GPIO 17 (Pin 11) -> Motor 1 Forward
     left_motor = Motor(23, 24)  # GPIO 27 (Pin 13) -> Motor 1 Backward
-    left_encoder = RotaryEncoder(a = 5, b = 6, max_steps = 0)  # Encoder 1 (A=5, B=6)
-    right_encoder = RotaryEncoder(a = 16, b = 26, max_steps = 0)  # Encoder 1 (A=16, B=26)
+    left_encoder = RotaryEncoder(5, 6, max_steps=0)  # Encoder 1 (A=5, B=6)
+    right_encoder = RotaryEncoder(
+        16, 26, max_steps=0)  # Encoder 1 (A=16, B=26)
+    servo = Servo(22)
+
+FPS = 20
 
 MAX_VOLTAGE = 12
 MOTOR_VOLTAGE = 7
@@ -38,15 +37,29 @@ LEFT_MOTOR_STEPS_PER_REV = 263
 RIGHT_MOTOR_FORWARD_STEPS_PER_REV = 240
 RIGHT_MOTOR_BACKWARDS_STEPS_PER_REV = 220
 
+TURN_SPEED = 0.3
+
+RED_HSV_RANGE = {
+    'lower': np.array([0, 100, 130]),
+    # THESE RED VALUES WORKED WELL FOR THE TRACK
+    'upper': np.array([90, 255, 255])
+}
+GREEN_HSV_RANGE = {
+    'lower': np.array([40, 200, 40]),
+    'upper': np.array([80, 255, 255])
+}
+BLUE_HSV_RANGE = {
+    'lower': np.array([100, 100, 100]),
+    'upper': np.array([130, 255, 255])
+}
 
 # -------- DRIVE TRAIN -----------
-# Function to calculate speed for Motor 1
 
 
 def right_motor_speed():
     global last_time1
     global last_count1
-    
+
     if last_time1 == None:
         last_time1 = time()
         return
@@ -69,13 +82,11 @@ def right_motor_speed():
 
     return speed
 
-# Function to calculate speed for Motor 2
-
 
 def left_motor_speed():
     global last_time2
     global last_count2
-    
+
     if last_time2 == None:
         last_time2 = time()
         return
@@ -98,35 +109,23 @@ def left_motor_speed():
 
     return speed
 
-# Function to calculate distance for Motor 1
-
 
 def right_motor_distance():
-    global total_distance1
     current_count = right_encoder.steps
     revolutions = current_count / 230
-    total_distance1 = revolutions * WHEEL_CIRCUMFERENCE
-    return total_distance1
-
-# Function to calculate distance for Motor 2
+    return revolutions * WHEEL_CIRCUMFERENCE
 
 
 def left_motor_distance():
-    global total_distance2
     current_count = left_encoder.steps
     revolutions = current_count / 263
-    total_distance2 = revolutions * WHEEL_CIRCUMFERENCE
-    return total_distance2
-
-# Function to calculate rotation in degrees for Motor 1
+    return revolutions * WHEEL_CIRCUMFERENCE
 
 
 def right_motor_rotation():
     current_count = right_encoder.steps
     rotation_degrees = (current_count / 230) * 360
     return rotation_degrees
-
-# Function to calculate rotation in degrees for Motor 2
 
 
 def left_motor_rotation():
@@ -140,19 +139,10 @@ def drive_motors(left_speed, right_speed):
     drive_right_motor(right_speed)
 
 
-def stop_motors():
-    left_motor.stop()
-    right_motor.stop()
-
-
-def turn(angle):
-    return
-
-
 def drive_right_motor(speed):
     if abs(speed) > MAX_SPEED:
         speed = MAX_SPEED
-        
+
     speed = speed
 
     if speed == 0:
@@ -174,90 +164,45 @@ def drive_left_motor(speed):
     else:
         left_motor.forward(speed=speed)
 
-def lower_arm():  # TODO by Shreya
-    return
+
+def stop_motors():
+    left_motor.stop()
+    right_motor.stop()
 
 
-def raise_arm():  # TODO by Shreya
-    return
+def turn_right():
+    left_steps = left_encoder.steps
 
-def map_speed_to_value(speed):
-    # Input range
-    speed_min = 0.3
-    speed_max = 0.55
-    
-    # Output range
-    value_min = 0.97
-    value_max = 1.1
-    
-    # Linear mapping formula: y = mx + b
-    # where m = (y2-y1)/(x2-x1)
-    mapped_value = (value_max - value_min) * (speed - speed_min) / (speed_max - speed_min) + value_min
-    
-    # Clamp the output to the desired range
-    return max(value_min, min(value_max, mapped_value))
+    drive_motors(TURN_SPEED, 0)
+
+    def get_distance1(steps):
+        revolutions = steps / 263
+        return revolutions * WHEEL_CIRCUMFERENCE
+
+    while get_distance1(abs(left_encoder.steps - left_steps)) < 20:
+        continue
+
+    stop_motors()
 
 
-# ------ TEST SCRIPT ------------
-test_speed = 0.5
-test_distance = 2
+def turn_left():
+    right_steps = left_encoder.steps
 
-# if ENV != "TEST":
-#     try:
-#         while True:
-#             drive_motors(test_speed, test_speed * 1.01)
-# 
-#             # Get encoder data for Motor 1
-#             speed1 = 0
-#             right_distance = right_motor_distance()
-#             right_rotation = 0
-#             print(
-#                 f"Motor 1: Speed = {speed1:.2f} m/s, Distance = {right_distance:.2f} m, Rotation = {right_rotation:.2f}ÃÂ°")
-# 
-#             # Get encoder data for Motor 2
-#             speed2 = 0
-#             left_distance = left_motor_distance()
-#             left_rotation = 0
-#             print(
-#                 f"Motor 2: Speed = {speed2:.2f} m/s, Distance = {left_distance:.2f} m, Rotation = {left_rotation:.2f}ÃÂ°")
-# 
-#             #stop_motors()
-#             #sleep(2)
-#             if abs(left_distance) >= test_distance or abs(right_distance) >= test_distance:
-#                 break
-# 
-#     except KeyboardInterrupt:
-#         print("Program stopped")
-# 
-#     finally:
-#         stop_motors()
-        
-        
-# try:
-#     while True:
-# #         print("Moving A forward")
-# #         motors_forward(0.5)
-# #         sleep(2)
-# 
-#         print("Moving Both forward")
-#         drive_motors(0.25)
-#         sleep(2)
-#         
-#         print("Stopping")
-#         stop_motors()
-#         sleep(2)
-# 
-# except KeyboardInterrupt:
-#     print("Program stopped")
-# 
-# finally:
-#     motorA_stop()
-#     motorB_stop()
-#     IN1.close()
-#     IN2.close()
-#     IN3.close()
-#     IN4.close()
-#     ENA.close()
-#     ENB.close()
+    drive_motors(0, TURN_SPEED)
+
+    def get_distance2(steps):
+        revolutions = steps / 220
+        return revolutions * WHEEL_CIRCUMFERENCE
+
+    while get_distance2(abs(right_encoder.steps - right_steps)) < 20:
+        continue
+
+    stop_motors()
 
 
+def lower_arm():
+    servo.max()
+
+
+def raise_arm():
+    servo.min()

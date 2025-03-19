@@ -20,12 +20,23 @@ class TestMotor:
     def __init__(self, pin, temp):
         self.value = pin
         self.steps = temp
-    
-    def forward(self):
+
+    def forward(self, speed=1.0):
         return
-    
-    def backward(self):
+
+    def backward(self, speed=1.0):
         return
-    
+
     def stop(self):
+        return
+
+
+class TestServo:
+    def __init__(self, pin):
+        self.value = pin
+
+    def min(self):
+        return
+
+    def max(self):
         return

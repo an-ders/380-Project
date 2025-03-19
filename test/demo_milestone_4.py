@@ -1,7 +1,9 @@
 import cv2 as cv
 import numpy as np
-import time
-from constants import *
+import time as timer
+
+import sys
+sys.path.append('..')
 from hardware import *
 
 STRAIGHT_SPEED = 0.25
@@ -40,30 +42,30 @@ def demo():
             print("Red detected! Starting movement sequence...")
             break
 
-        time.sleep(1/FPS)
+        timer.sleep(1/FPS)
         if cv.waitKey(1) & 0xFF == ord('q'):
             break
 
     # Phase 2: Drive forward for 3 seconds
     print("Phase 2: Driving forward")
-    start_time = time.time()
-    drive_motors(STRAIGHT_SPEED)
-    while time.time() - start_time < INTERVAL_TIME:
-        time.sleep(1/FPS)
+    start_time = timer.time()
+    drive_motors(STRAIGHT_SPEED, STRAIGHT_SPEED)
+    while timer.time() - start_time < INTERVAL_TIME:
+        timer.sleep(1/FPS)
 
     # Phase 3: Stop and turn
     print("Phase 3: Turning")
     drive_motors(TURN_SPEED, -TURN_SPEED)
-    start_time = time.time()
-    while time.time() - start_time < INTERVAL_TIME:
-        time.sleep(1/FPS)
+    start_time = timer.time()
+    while timer.time() - start_time < INTERVAL_TIME:
+        timer.sleep(1/FPS)
 
     # Phase 4: Drive backward
     print("Phase 4: Driving backward")
-    drive_motors(-STRAIGHT_SPEED)
-    start_time = time.time()
-    while time.time() - start_time < INTERVAL_TIME:
-        time.sleep(1/FPS)
+    drive_motors(-STRAIGHT_SPEED, -STRAIGHT_SPEED)
+    start_time = timer.time()
+    while timer.time() - start_time < INTERVAL_TIME:
+        timer.sleep(1/FPS)
 
     stop_motors()
 
