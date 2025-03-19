@@ -19,7 +19,7 @@ class TestEncoder:
 class TestMotor:
     def __init__(self, pin, temp):
         self.value = pin
-        self.steps = temp
+        self.steps = 0
 
     def forward(self, speed=1.0):
         return
