@@ -106,6 +106,7 @@ def drive_to_target_main():
                 turn()
                 total_turns += 1
             else:
+                
                 speed = get_optimal_speed(path_len)
                 print(speed)
                 #     #offset = get_offset(img)  # TODO by Anders

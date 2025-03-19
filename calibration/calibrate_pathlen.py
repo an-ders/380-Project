@@ -7,15 +7,22 @@ import cv2 as cv
 import numpy as np
 import pandas as pd
 
-NUM_TESTS = 3
+NUM_TESTS = 20
 
 def calibrate_pathlen_main():
     # Initialize webcam
     cap = cv.VideoCapture(0, cv.CAP_DSHOW)
 
     # [*1] Set resolution
-    cap.set(cv.CAP_PROP_FRAME_WIDTH, 640)  # Set width to 640 pixels
-    cap.set(cv.CAP_PROP_FRAME_HEIGHT, 480)  # Set height to 480 pixels
+    # Get native resolution and swap width/height for portrait orientation
+    native_width = int(cap.get(cv.CAP_PROP_FRAME_HEIGHT))  # Swapped
+    native_height = int(cap.get(cv.CAP_PROP_FRAME_WIDTH))  # Swapped
+
+    # Set video parameters
+    # Original height becomes width
+    cap.set(cv.CAP_PROP_FRAME_WIDTH, native_height)
+    # Original width becomes height
+    cap.set(cv.CAP_PROP_FRAME_HEIGHT, native_width)
 
     # [*2] Set frame rate
     cap.set(cv.CAP_PROP_FPS, 30)  # Set to 30 frames per second
@@ -39,7 +46,9 @@ def calibrate_pathlen_main():
                 break
 
             # Resize frame for consistency
-            frame = cv.resize(frame, (480, 480))
+            #frame = cv.resize(frame, (480, 480))
+            frame = cv.rotate(frame, cv.ROTATE_90_COUNTERCLOCKWISE)
+
 
             # Convert to HSV color space
             hsv = cv.cvtColor(frame, cv.COLOR_BGR2HSV)
