@@ -111,7 +111,8 @@ def left_motor_speed():
 def right_motor_distance():
     current_count = right_encoder.steps
     revolutions = current_count / 230
-    return revolutions * WHEEL_CIRCUMFERENCE
+    # Forward gives negative values so must *-1
+    return -1*(revolutions * WHEEL_CIRCUMFERENCE)
 
 
 def left_motor_distance():
