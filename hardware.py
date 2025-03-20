@@ -199,13 +199,13 @@ def turn_left():
 
 
 def lower_arm():
-    servo.angle = 30
+    servo.angle = 40
 
 
 def raise_arm():
-    servo.angle = 22
+    servo.angle = 30
 
 
 def drop_person():
-    servo.angle = 10
+    servo.angle = 0
 
