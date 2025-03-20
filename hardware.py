@@ -1,5 +1,5 @@
-from test.test_classes import *
-from gpiozero import Motor, RotaryEncoder, Servo
+from test_classes import *
+from gpiozero import Motor, RotaryEncoder, AngularServo
 from time import time
 import numpy as np
 
@@ -17,7 +17,7 @@ if ENV != "TEST":
     left_encoder = RotaryEncoder(5, 6, max_steps=0)  # Encoder 1 (A=5, B=6)
     right_encoder = RotaryEncoder(
         16, 26, max_steps=0)  # Encoder 1 (A=16, B=26)
-    servo = Servo(22)
+    servo = AngularServo(22, min_angle=0, max_angle=45)
 
 FPS = 20
 
@@ -137,7 +137,7 @@ def left_motor_rotation():
 def drive_motors(left_speed, right_speed):
     drive_left_motor(left_speed)
     drive_right_motor(right_speed)
-
+    
 
 def drive_right_motor(speed):
     if abs(speed) > MAX_SPEED:
@@ -148,7 +148,7 @@ def drive_right_motor(speed):
     if speed == 0:
         right_motor.stop()
     elif speed < 0:
-        right_motor.backward(speed=speed)
+        right_motor.backward(speed=abs(speed))
     else:
         right_motor.forward(speed=speed)
 
@@ -160,7 +160,7 @@ def drive_left_motor(speed):
     if speed == 0:
         left_motor.stop()
     elif speed < 0:
-        left_motor.backward(speed=speed)
+        left_motor.backward(speed=abs(speed))
     else:
         left_motor.forward(speed=speed)
 
@@ -201,8 +201,13 @@ def turn_left():
 
 
 def lower_arm():
-    servo.max()
+    servo.angle = 30
 
 
 def raise_arm():
-    servo.min()
+    servo.angle = 22
+
+
+def drop_person():
+    servo.angle = 10
+

@@ -119,12 +119,6 @@ def main():
         # Display the frame (already in portrait orientation)
         cv.imshow('Line Following', frame)
 
-        # Calculate how long to wait to maintain FPS
-        process_time = timer.time() - start_time
-        #print(f"Process time: {process_time:.4f}s")
-        wait_time = max(1.0/FPS - process_time, 0)
-        #print(f"Wait time: {wait_time:.4f}s")
-
         # Break loop if 'q' is pressed
         if cv.waitKey(1) & 0xFF == ord('q'):
             print("Stopping line following")
