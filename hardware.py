@@ -3,7 +3,7 @@ from gpiozero import Motor, RotaryEncoder, AngularServo
 from time import time
 import numpy as np
 
-ENV = ""
+ENV = "TEST"
 
 if ENV == "TEST":
     right_motor = TestMotor(17, 27)  # GPIO 17 (Pin 11) -> Motor 1 Forward  # GPIO 27 (Pin 13) -> Motor 1 Backward

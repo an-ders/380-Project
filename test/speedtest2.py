@@ -1,4 +1,5 @@
-import time
+from time import time
+
 import sys
 sys.path.append('..')
 from hardware import *
@@ -21,18 +22,18 @@ if __name__ == "__main__":
 
         # FORWARD
         drive_motors(sp, sp)
-        start_time = time.time()
+        start_time = time()
         while (right_motor_distance()<DIST):
             continue
-        end_time = time.time()
+        end_time = time()
         print("Actual forward speed: %.2f m/s", DIST/(end_time-start_time))
 
         # BACKWARD
         drive_motors(-sp, -sp)
-        start_time = time.time()
+        start_time = time()
         while (right_motor_distance()>0):
             continue
-        end_time = time.time()
+        end_time = time()
         print("Actual backward speed: %.2f m/s", DIST/(end_time-start_time))
 
         # STOP
