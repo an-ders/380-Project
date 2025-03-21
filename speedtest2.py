@@ -18,8 +18,8 @@ if __name__ == "__main__":
         print(sp)
         drive_motors(sp, sp)
         while (right_motor_distance()<1):
-            continue
+            print(right_motor_distance())
         drive_motors(-sp, -sp)
-        while (right_motor_distance()>0):
-            continue
+        while (left_motor_distance()>0):
+           print(left_motor_distance())
         drive_motors(0, 0)
