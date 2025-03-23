@@ -1,22 +1,22 @@
 from test_classes import *
-from gpiozero import Motor, RotaryEncoder, AngularServo
+from gpiozero import Motor, RotaryEncoder, AngularServo, BadPinFactory
 from time import time
 import numpy as np
 
-ENV = ""
-
-if ENV == "TEST":
-    right_motor = TestMotor(17, 27)  # GPIO 17 (Pin 11) -> Motor 1 Forward  # GPIO 27 (Pin 13) -> Motor 1 Backward
-    left_motor = TestMotor(23, 24)  # GPIO 23 (Pin 16) -> Motor 2 Forward # GPIO 24 (Pin 18) -> Motor 2 Backward
-    left_encoder = TestEncoder(5, 6)   #max_steps=0 allows us to look at raw steps # Encoder 1 (A=5, B=6)
-    right_encoder = TestEncoder(16, 26)
-    servo = TestServo(22)
-else:
+# Try/except block creates variables on the global scope and prevents errors from halting runtime
+try:
     right_motor = Motor(17, 27)  # GPIO 17 (Pin 11) -> Motor 1 Forward  # GPIO 27 (Pin 13) -> Motor 1 Backward
     left_motor = Motor(23, 24)  # GPIO 23 (Pin 16) -> Motor 2 Forward # GPIO 24 (Pin 18) -> Motor 2 Backward
     left_encoder = RotaryEncoder(5, 6, max_steps=0)   #max_steps=0 allows us to look at raw steps # Encoder 1 (A=5, B=6)
     right_encoder = RotaryEncoder(16, 26, max_steps=0)
     servo = AngularServo(22, min_angle=0, max_angle=45)
+except BadPinFactory:
+    print("Error: BadPinFactory. Mocking hardware.")
+    right_motor = TestMotor(17, 27)  # GPIO 17 (Pin 11) -> Motor 1 Forward  # GPIO 27 (Pin 13) -> Motor 1 Backward
+    left_motor = TestMotor(23, 24)  # GPIO 23 (Pin 16) -> Motor 2 Forward # GPIO 24 (Pin 18) -> Motor 2 Backward
+    left_encoder = TestEncoder(5, 6)   #max_steps=0 allows us to look at raw steps # Encoder 1 (A=5, B=6)
+    right_encoder = TestEncoder(16, 26)
+    servo = TestServo(22)
 
 FPS = 20
 
