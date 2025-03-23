@@ -1,6 +1,6 @@
 from test_classes import *
 from gpiozero import Motor, RotaryEncoder, AngularServo, BadPinFactory
-from time import time
+from time import time, sleep
 import numpy as np
 
 # Try/except block creates variables on the global scope and prevents errors from halting runtime
@@ -212,3 +212,37 @@ def raise_arm():
 def drop_person():
     servo.angle = 0
 
+if __name__ == "__main__":
+    print("Testing motors.")
+
+    print("Right motor forwards.")
+    drive_right_motor(MIN_DUTY_CYCLE)
+    sleep(1)
+    print("Right motor backwards.")
+    drive_right_motor(-MIN_DUTY_CYCLE)
+    sleep(1)
+    drive_right_motor(0)
+
+    print("Left motor forwards.")
+    drive_left_motor(MIN_DUTY_CYCLE)
+    sleep(1)
+    print("Left motor backwards.")
+    drive_left_motor(-MIN_DUTY_CYCLE)
+    sleep(1)
+    drive_left_motor(0)
+
+    print("Both motors forwards.")
+    drive_motors(MIN_DUTY_CYCLE, MIN_DUTY_CYCLE)
+    sleep(1)
+    print("Both motors backwards.")
+    drive_motors(-MIN_DUTY_CYCLE, -MIN_DUTY_CYCLE)
+    sleep(1)
+    drive_motors(0)
+
+    print("Turn right.")
+    drive_motors(MIN_DUTY_CYCLE, -MIN_DUTY_CYCLE)
+    sleep(1)
+    print("Turn left.")
+    drive_motors(-MIN_DUTY_CYCLE, MIN_DUTY_CYCLE)
+    sleep(1)
+    drive_motors(0)
