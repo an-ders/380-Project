@@ -13,13 +13,15 @@ def adjust_speed_right(speed):
     return speed
 
 if __name__ == "__main__":
-    speed_list = [MIN_DUTY_CYCLE + i * STEP_SIZE for i in range(NUM_TESTS+1)]
-    for sp in speed_list:
-        print(sp)
-        drive_motors(sp, sp)
+    duty_cycles = [MIN_DUTY_CYCLE + i * STEP_SIZE for i in range(NUM_TESTS+1)]
+    for dc in duty_cycles:
+        print(dc)
+        drive_motors(dc, dc)
         while (right_motor_distance()<1):
             print(right_motor_distance())
-        drive_motors(-sp, -sp)
+        stop_motors()
+        sleep(1)
+        drive_motors(-dc, -dc)
         while (left_motor_distance()>0):
            print(left_motor_distance())
         drive_motors(0, 0)
