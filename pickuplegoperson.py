@@ -37,8 +37,6 @@ def pick_up_lego_person_main():
     cap.set(cv.CAP_PROP_FRAME_WIDTH, native_height)
     # Original width becomes height
     cap.set(cv.CAP_PROP_FRAME_HEIGHT, native_width)
-    # [*2] Set frame rate
-    cap.set(cv.CAP_PROP_FPS, 30)  # Set to 30 frames per second
 
     pid = PID.PID()
     dist_to_target = 1000  # arbitrary large number
@@ -66,7 +64,7 @@ def pick_up_lego_person_main():
         # TODO this should probably be slower^
 
         # Display the original frame with detected lines
-        cv.imshow('Red Line Detection', frame)
+        cv.imshow('Blue Target', frame)
 
         # Break loop on user interrupt (e.g., 'q' key press)
         if cv.waitKey(1) & 0xFF == ord('q'):
