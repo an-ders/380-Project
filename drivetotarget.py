@@ -15,17 +15,24 @@ B = MAX_DUTY_CYCLE-MAX_LEN*M
 REAL_M = 1
 REAL_B = 0
 
-def turn():
-    pass
-
 def get_real_path_len(line_len):
     path_len = REAL_M*line_len + REAL_B
     return path_len
 
-# TODO TUNE ME - ZARA
 def get_optimal_speed(path_len):
     speed = M*path_len + B
     return speed
+
+def is_target_close(hsv_frame):
+    """Takes HSV frame, returns whether blue is close or not"""
+    blue_mask = cv.inRange(hsv_frame, BLUE_HSV_RANGE['lower'], BLUE_HSV_RANGE['upper'])
+    blue_mask[:-100, :] = 0  # Keep only bottom 100 pixels
+    blue_pixels = np.where(blue_mask > 0)
+    if len(blue_pixels[1]) > 0:
+        print("Target Identified.")
+        return True
+    else:
+        return False
 
 def drive_to_target_main():
     # Initialize webcam
@@ -48,7 +55,8 @@ def drive_to_target_main():
 
     pid = PID()
     total_turns = 0
-    while total_turns < MAX_TURNS:
+    target = False
+    while not target:
         # Capture frame
         ret, frame = cap.read()
         if not ret:
@@ -99,18 +107,16 @@ def drive_to_target_main():
             path_len = get_real_path_len(line_len)
             print(f"Digital Line Length: {line_len:.2f} | Real Line Length: {path_len:.2f}")
             
-            # OUTPUTS   
-            if path_len < MIN_LEN:
-                turn()
-                total_turns += 1
-            else:
-                optimal_duty_cycle = get_optimal_speed(path_len) # TODO implement speed control
-                pid.get_offset(frame, native_width)
-                left_duty_cycle, right_duty_cycle = pid.get_differential_speed()
-                drive_motors(left_duty_cycle, right_duty_cycle)
+            # OUTPUTS
+            optimal_duty_cycle = get_optimal_speed(path_len) # TODO implement speed control
+            pid.get_offset(hsv, native_width)
+            left_duty_cycle, right_duty_cycle = pid.get_differential_speed()
+            drive_motors(left_duty_cycle, right_duty_cycle)
                 
         else:
             print("No red line detected")
+
+        target = is_target_close(hsv)
 
         # Display the original frame with detected lines
         cv.imshow('Red Line Detection', frame)

@@ -12,19 +12,13 @@ class PID:
         self.error = 0
         # derivative does not need to be a class variable
 
-    def get_offset(self, frame, frame_width):
-        # Convert to HSV color space for processing
-        hsv = cv.cvtColor(frame, cv.COLOR_BGR2HSV)
+    def get_offset(self, hsv, frame_width):
+        """Takes HSV frame, updates offset"""
 
         # Create red mask and keep only bottom 100 pixels
         red_mask = cv.inRange(
             hsv, RED_HSV_RANGE['lower'], RED_HSV_RANGE['upper'])
         red_mask[:-100, :] = 0  # Keep only bottom 100 pixels
-
-        hsv = cv.cvtColor(frame, cv.COLOR_BGR2HSV)
-        test = cv.inRange(
-            hsv, RED_HSV_RANGE['lower'], RED_HSV_RANGE['upper'])
-        test[:-400, :] = 0  # Keep only bottom 100 pixels
 
         # Find red pixels in the bottom region
         red_pixels = np.where(red_mask > 0)
