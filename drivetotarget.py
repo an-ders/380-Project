@@ -50,9 +50,7 @@ def drive_to_target_main():
     cap.set(cv.CAP_PROP_FRAME_WIDTH, native_height)
     # Original width becomes height
     cap.set(cv.CAP_PROP_FRAME_HEIGHT, native_width)
-    # [*2] Set frame rate
-    cap.set(cv.CAP_PROP_FPS, 30)  # Set to 30 frames per second
-
+    
     pid = PID.PID()
     target = False
     while not target:
