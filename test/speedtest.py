@@ -23,7 +23,7 @@ if __name__ == "__main__":
             print(right_motor_distance())
         stop_motors()
         sleep(1)
-        drive_motors(-dc, -dc)
-        while (left_motor_distance()>0):
-           print(left_motor_distance())
+        drive_motors((-1*dc), (-1*dc))
+        while (right_motor_distance()>0):
+           print(right_motor_distance())
         drive_motors(0, 0)
