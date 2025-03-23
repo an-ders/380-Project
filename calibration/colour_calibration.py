@@ -1,10 +1,14 @@
 import cv2 as cv
 import numpy as np
+import platform
 
 
 def colour_calibration():
     # Initialize webcam
-    cap = cv.VideoCapture(0)
+    if platform.system() == 'Windows':
+        cap = cv.VideoCapture(0, cv.CAP_DSHOW)
+    else:
+        cap = cv.VideoCapture(0)
 
     # Get native resolution and swap width/height for portrait orientation
     native_width = int(cap.get(cv.CAP_PROP_FRAME_HEIGHT))  # Swapped

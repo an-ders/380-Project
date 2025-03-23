@@ -2,6 +2,7 @@ import cv2 as cv
 import numpy as np
 import time as timer
 from hardware import *
+import platform
 
 MAX_SPEED = 0.6
 
@@ -10,9 +11,12 @@ KP = 0.8  # Proportional gain
 KI = 0.01  # Integral gain
 KD = 0.1  # Derivative gain
 
-def main():
+def line_follow_main():
     # Initialize webcam
-    cap = cv.VideoCapture(0)
+    if platform.system() == 'Windows':
+        cap = cv.VideoCapture(0, cv.CAP_DSHOW)
+    else:
+        cap = cv.VideoCapture(0)
 
     # Get native resolution and swap width/height for portrait orientation
     native_width = int(cap.get(cv.CAP_PROP_FRAME_HEIGHT))  # Swapped
@@ -129,5 +133,5 @@ def main():
     cap.release()
     cv.destroyAllWindows()
 
-
-main()
+if __name__ == "__main__":
+    line_follow_main()

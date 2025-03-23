@@ -1,6 +1,7 @@
 import cv2 as cv
 import numpy as np
 import time as timer
+import platform
 
 import sys
 sys.path.append('..')
@@ -13,7 +14,10 @@ INTERVAL_TIME = 1
 
 def demo():
     # Initialize webcam
-    cap = cv.VideoCapture(0)
+    if platform.system() == 'Windows':
+        cap = cv.VideoCapture(0, cv.CAP_DSHOW)
+    else:
+        cap = cv.VideoCapture(0)
 
     # Set video parameters
     native_width = int(cap.get(cv.CAP_PROP_FRAME_WIDTH))

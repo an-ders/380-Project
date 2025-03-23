@@ -1,7 +1,8 @@
 import cv2 as cv
 import numpy as np
 from math import log
-from hardware import drive_motors
+from hardware import *
+import platform
 
 MAX_TURNS = 9
 
@@ -28,7 +29,10 @@ def get_optimal_speed(path_len):
 
 def drive_to_target_main():
     # Initialize webcam
-    cap = cv.VideoCapture(0, cv.CAP_DSHOW)
+    if platform.system() == 'Windows':
+        cap = cv.VideoCapture(0, cv.CAP_DSHOW)
+    else:
+        cap = cv.VideoCapture(0)
 
     # Get native resolution and swap width/height for portrait orientation
     native_width = int(cap.get(cv.CAP_PROP_FRAME_HEIGHT))  # Swapped
@@ -41,12 +45,6 @@ def drive_to_target_main():
     cap.set(cv.CAP_PROP_FRAME_HEIGHT, native_width)
     # [*2] Set frame rate
     cap.set(cv.CAP_PROP_FPS, 30)  # Set to 30 frames per second
-
-    # [*3] Define HSV range for red color
-    red_lower = np.array([0, 100, 100])
-    red_upper = np.array([10, 255, 255])
-    red_lower_2 = np.array([160, 100, 100])
-    red_upper_2 = np.array([180, 255, 255])
 
     total_turns = 0
     while total_turns < MAX_TURNS:
@@ -64,9 +62,8 @@ def drive_to_target_main():
         hsv = cv.cvtColor(frame, cv.COLOR_BGR2HSV)
 
         # Create masks for red color
-        mask1 = cv.inRange(hsv, red_lower, red_upper)
-        mask2 = cv.inRange(hsv, red_lower_2, red_upper_2)
-        mask = cv.bitwise_or(mask1, mask2)
+        mask = cv.inRange(
+            hsv, RED_HSV_RANGE['lower'], RED_HSV_RANGE['upper'])
 
         # Apply mask to isolate red regions
         red_regions = cv.bitwise_and(frame, frame, mask=mask)
@@ -108,7 +105,7 @@ def drive_to_target_main():
             else:
                 speed = get_optimal_speed(path_len)
                 print(speed)
-                #     #offset = get_offset(img)  # TODO by Anders
+                #     #offset = get_offset(frame)  # TODO by Anders
                 #     #left_speed, right_speed = get_differential_speed(offset, speed)  # TODO by Anders
                 drive_motors(speed, speed)
                 
