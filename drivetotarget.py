@@ -3,15 +3,15 @@ import numpy as np
 from math import log
 from hardware import *
 import platform
+from PID import PID
 
 MAX_TURNS = 9
 
 MIN_LEN = 0.1  # m
 MAX_LEN = 0.5 # m
-MIN_SPEED = 0.25
-MAX_SPEED = 0.55
-M = (MAX_SPEED-MIN_SPEED)/(MAX_LEN-MIN_LEN)
-B = MAX_SPEED-MAX_LEN*M
+MIN_DUTY_CYCLE = 0.25
+M = (MAX_DUTY_CYCLE-MIN_DUTY_CYCLE)/(MAX_LEN-MIN_LEN)
+B = MAX_DUTY_CYCLE-MAX_LEN*M
 REAL_M = 1
 REAL_B = 0
 
@@ -46,6 +46,7 @@ def drive_to_target_main():
     # [*2] Set frame rate
     cap.set(cv.CAP_PROP_FPS, 30)  # Set to 30 frames per second
 
+    pid = PID()
     total_turns = 0
     while total_turns < MAX_TURNS:
         # Capture frame
@@ -103,11 +104,10 @@ def drive_to_target_main():
                 turn()
                 total_turns += 1
             else:
-                speed = get_optimal_speed(path_len)
-                print(speed)
-                #     #offset = get_offset(frame)  # TODO by Anders
-                #     #left_speed, right_speed = get_differential_speed(offset, speed)  # TODO by Anders
-                drive_motors(speed, speed)
+                optimal_duty_cycle = get_optimal_speed(path_len) # TODO implement speed control
+                pid.get_offset(frame, native_width)
+                left_duty_cycle, right_duty_cycle = pid.get_differential_speed()
+                drive_motors(left_duty_cycle, right_duty_cycle)
                 
         else:
             print("No red line detected")

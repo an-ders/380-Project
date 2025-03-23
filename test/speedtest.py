@@ -4,9 +4,9 @@ import sys
 sys.path.append('..')
 from hardware import *
 
-MIN_SPEED = 0.25
-MAX_TEST_SPEED = MAX_SPEED * 0.7
-STEP_SIZE = (MAX_TEST_SPEED - MIN_SPEED) / 5
+MIN_DUTY_CYCLE = 0.25
+MAX_TEST_SPEED = MAX_DUTY_CYCLE * 0.7
+STEP_SIZE = (MAX_TEST_SPEED - MIN_DUTY_CYCLE) / 5
 
 print(MAX_TEST_SPEED)
 
@@ -15,7 +15,7 @@ def adjust_speed_right(speed):
     speed *= multiplier
     return speed
 
-speed = MIN_SPEED
+speed = MIN_DUTY_CYCLE
 while speed <= MAX_TEST_SPEED + 0.01:
     print(speed)
 

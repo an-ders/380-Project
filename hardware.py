@@ -22,7 +22,8 @@ FPS = 20
 
 MAX_VOLTAGE = 12
 MOTOR_VOLTAGE = 7
-MAX_SPEED = MOTOR_VOLTAGE / MAX_VOLTAGE
+MAX_DUTY_CYCLE = MOTOR_VOLTAGE / MAX_VOLTAGE
+MIN_DUTY_CYCLE = 0.25
 
 WHEEL_D = 0.0677
 WHEEL_CIRCUMFERENCE = 3.14159265359 * WHEEL_D
@@ -140,8 +141,8 @@ def drive_motors(left_speed, right_speed):
     
 
 def drive_right_motor(speed):
-    if abs(speed) > MAX_SPEED:
-        speed = MAX_SPEED
+    if abs(speed) > MAX_DUTY_CYCLE:
+        speed = MAX_DUTY_CYCLE
 
     speed = speed
 
@@ -154,8 +155,8 @@ def drive_right_motor(speed):
 
 
 def drive_left_motor(speed):
-    if abs(speed) > MAX_SPEED:
-        speed = MAX_SPEED
+    if abs(speed) > MAX_DUTY_CYCLE:
+        speed = MAX_DUTY_CYCLE
 
     if speed == 0:
         left_motor.stop()

@@ -4,7 +4,7 @@ import time as timer
 from hardware import *
 import platform
 
-MAX_SPEED = 0.6
+MAX_DUTY_CYCLE = 0.6
 
 # Add PID constants at the top with other constants
 KP = 0.8  # Proportional gain

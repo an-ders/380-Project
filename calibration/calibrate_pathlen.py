@@ -6,12 +6,16 @@ in meters. After 20 data points, the program will output an Excel sheet that can
 import cv2 as cv
 import numpy as np
 import pandas as pd
+import platform
 
 NUM_TESTS = 3
 
 def calibrate_pathlen_main():
     # Initialize webcam
-    cap = cv.VideoCapture(0, cv.CAP_DSHOW)
+    if platform.system() == 'Windows':
+        cap = cv.VideoCapture(0, cv.CAP_DSHOW)
+    else:
+        cap = cv.VideoCapture(0)
 
     # [*1] Set resolution
     cap.set(cv.CAP_PROP_FRAME_WIDTH, 640)  # Set width to 640 pixels
