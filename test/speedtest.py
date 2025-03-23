@@ -18,12 +18,12 @@ if __name__ == "__main__":
     duty_cycles = [MIN_DUTY_CYCLE + i * STEP_SIZE for i in range(NUM_TESTS+1)]
     for dc in duty_cycles:
         print(dc)
-        drive_motors(dc, dc)
+        drive_motors(dc, adjust_speed_right(dc))
         while (right_motor_distance()<1):
             print(right_motor_distance())
         stop_motors()
         sleep(1)
-        drive_motors((-1*dc), (-1*dc))
+        drive_motors((-1*dc), adjust_speed_right(-1*dc))
         while (right_motor_distance()>0):
            print(right_motor_distance())
         drive_motors(0, 0)
