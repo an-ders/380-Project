@@ -1,9 +1,19 @@
 import cv2 as cv
 from hardware import *
 
-KP = 0.8  # Proportional gain
-KI = 0.01  # Integral gain
-KD = 0.1  # Derivative gain
+"""
+Use a systematic approach like Ziegler-Nichols Method or manual tuning:
+
+Manual Tuning Approach
+    
+Set Ki and Kd to Zero. Start with only Kp and gradually increase it until the robot follows the line but oscillates.
+Increase Kd. Add small values of Kd to dampen oscillations and smooth movement.
+Add Ki. If the robot has slow corrections or drifts over time, increase Ki slightly to improve steady-state accuracy.
+"""
+
+KP = 0.01  # Proportional gain
+KI = 0.0  # Integral gain
+KD = 0.0  # Derivative gain
 
 class PID:
     def __init__(self):
