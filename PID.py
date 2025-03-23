@@ -12,21 +12,31 @@ class PID:
         self.error = 0
         # derivative does not need to be a class variable
 
-    def get_offset(self, hsv, frame_width):
+    def get_offset(self, hsv, frame_width, color):
         """Takes HSV frame, updates offset"""
+        if color == "r":
+            range = RED_HSV_RANGE
+        elif color == "b":
+            range = BLUE_HSV_RANGE
+        elif color == "g":
+            range = GREEN_HSV_RANGE
+        else:
+            print("Invalid color.")
+            raise
 
         # Create red mask and keep only bottom 100 pixels
-        red_mask = cv.inRange(
-            hsv, RED_HSV_RANGE['lower'], RED_HSV_RANGE['upper'])
-        red_mask[:-100, :] = 0  # Keep only bottom 100 pixels
+        mask = cv.inRange(
+            hsv, range['lower'], range['upper'])
+        if color == "r":
+            mask[:-100, :] = 0  # Keep only bottom 100 pixels
 
         # Find red pixels in the bottom region
-        red_pixels = np.where(red_mask > 0)
+        pixels = np.where(mask > 0)
             
-        if len(red_pixels[1]) > 0:  # If red line is detected
+        if len(pixels[1]) > 0:  # If red line is detected
             # Find max and min X coordinates of the red line
-            max_x = np.max(red_pixels[1])
-            min_x = np.min(red_pixels[1])
+            max_x = np.max(pixels[1])
+            min_x = np.min(pixels[1])
             red_center_x = (max_x + min_x) / 2
 
             # Calculate error (replaces offset)
@@ -60,7 +70,7 @@ class PID:
         if self.control_signal > 0:  # Need to turn right
             left_duty_cycle = MIN_DUTY_CYCLE
             right_duty_cycle = MIN_DUTY_CYCLE * (1 - abs(self.control_signal))
-        elif self.control_signal < 0:  # Need to turn left
+        else: #if self.control_signal < 0:  # Need to turn left
             left_duty_cycle = MIN_DUTY_CYCLE * (1 - abs(self.control_signal))
             right_duty_cycle = MIN_DUTY_CYCLE
         return left_duty_cycle, right_duty_cycle

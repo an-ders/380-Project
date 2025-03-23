@@ -3,7 +3,7 @@ import numpy as np
 from math import log
 from hardware import *
 import platform
-from PID import PID
+import PID
 
 MAX_TURNS = 9
 
@@ -53,8 +53,7 @@ def drive_to_target_main():
     # [*2] Set frame rate
     cap.set(cv.CAP_PROP_FPS, 30)  # Set to 30 frames per second
 
-    pid = PID()
-    total_turns = 0
+    pid = PID.PID()
     target = False
     while not target:
         # Capture frame
@@ -63,19 +62,10 @@ def drive_to_target_main():
             print("Failed to capture frame")
             break
 
-        # Resize frame for consistency
-        frame = cv.rotate(frame, cv.ROTATE_90_COUNTERCLOCKWISE)
-        # frame = cv.resize(frame, (480, 480))
-
-        # Convert to HSV color space
-        hsv = cv.cvtColor(frame, cv.COLOR_BGR2HSV)
-
-        # Create masks for red color
-        mask = cv.inRange(
-            hsv, RED_HSV_RANGE['lower'], RED_HSV_RANGE['upper'])
-
-        # Apply mask to isolate red regions
-        red_regions = cv.bitwise_and(frame, frame, mask=mask)
+        frame = cv.rotate(frame, cv.ROTATE_90_COUNTERCLOCKWISE)  # Resize frame for consistency
+        hsv = cv.cvtColor(frame, cv.COLOR_BGR2HSV)  # Convert to HSV color space
+        mask = cv.inRange(hsv, RED_HSV_RANGE['lower'], RED_HSV_RANGE['upper'])  # Create masks for red color
+        red_regions = cv.bitwise_and(frame, frame, mask=mask)  # Apply mask to isolate red regions
 
         # Convert the mask to grayscale for edge detection
         gray = cv.cvtColor(red_regions, cv.COLOR_BGR2GRAY)
@@ -109,7 +99,8 @@ def drive_to_target_main():
             
             # OUTPUTS
             optimal_duty_cycle = get_optimal_speed(path_len) # TODO implement speed control
-            pid.get_offset(hsv, native_width)
+            pid.get_offset(hsv, native_width, "r")
+            pid.calculate_control_signal()
             left_duty_cycle, right_duty_cycle = pid.get_differential_speed()
             drive_motors(left_duty_cycle, right_duty_cycle)
                 
