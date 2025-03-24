@@ -70,7 +70,7 @@ class PID:
         self.control_signal = (KP * self.error) + (KI * self.integral) + (KD * derivative)
         
         # Clamp control signal to [-1, 1]
-        self.control_signal = max(min(self.control_signal, 1), -1)
+        # self.control_signal = max(min(self.control_signal, 1), -1)
 
         # Update previous error
         self.previous_error = self.error

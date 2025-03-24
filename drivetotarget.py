@@ -65,43 +65,44 @@ def drive_to_target_main():
         mask = cv.inRange(hsv, RED_HSV_RANGE['lower'], RED_HSV_RANGE['upper'])  # Create masks for red color
         red_regions = cv.bitwise_and(frame, frame, mask=mask)  # Apply mask to isolate red regions
 
-        # Convert the mask to grayscale for edge detection
+        # # Convert the mask to grayscale for edge detection
         gray = cv.cvtColor(red_regions, cv.COLOR_BGR2GRAY)
 
-        # [*4] Apply Canny edge detection
+        # # [*4] Apply Canny edge detection
         edges = cv.Canny(gray, 50, 150)
 
-        # [*5] Use HoughLinesP to detect line segments
+        # # [*5] Use HoughLinesP to detect line segments
         lines = cv.HoughLinesP(edges, 1, np.pi / 180, threshold=50, minLineLength=50, maxLineGap=10)
 
-        # Draw the detected lines on the original frame
-        points = []
+        # # Draw the detected lines on the original frame
+        # points = []
         if lines is not None:
-            for line in lines:
-                x1, y1, x2, y2 = line[0]  # Unpack line endpoints
-                points.append((x1, y1))
-                points.append((x2, y2))
-                cv.line(frame, (x1, y1), (x2, y2), (0, 255, 0), 2)  # Draw line in green
-            highest_point = min(points, key=lambda p: p[1])  # Point with smallest y
-            lowest_point = max(points, key=lambda p: p[1])   # Point with largest y
+        #     for line in lines:
+        #         x1, y1, x2, y2 = line[0]  # Unpack line endpoints
+        #         points.append((x1, y1))
+        #         points.append((x2, y2))
+        #         cv.line(frame, (x1, y1), (x2, y2), (0, 255, 0), 2)  # Draw line in green
+        #     highest_point = min(points, key=lambda p: p[1])  # Point with smallest y
+        #     lowest_point = max(points, key=lambda p: p[1])   # Point with largest y
             
-            # Draw max and min positions
-            frame_width = frame.shape[1]  
-            cv.line(frame, (0, highest_point[1]), (frame_width, highest_point[1]), (255, 255, 0), 2)  # Cyan # Draw horizontal line at the highest y-value (topmost detected edge)
-            cv.line(frame, (0, lowest_point[1]), (frame_width, lowest_point[1]), (255, 255, 0), 2)  # Cyan # Draw horizontal line at the lowest y-value (bottommost detected edge)
+        #     # Draw max and min positions
+        #     frame_width = frame.shape[1]  
+        #     cv.line(frame, (0, highest_point[1]), (frame_width, highest_point[1]), (255, 255, 0), 2)  # Cyan # Draw horizontal line at the highest y-value (topmost detected edge)
+        #     cv.line(frame, (0, lowest_point[1]), (frame_width, lowest_point[1]), (255, 255, 0), 2)  # Cyan # Draw horizontal line at the lowest y-value (bottommost detected edge)
 
-            # PATH LENGTH
-            line_len = lowest_point[1] - highest_point[1]
-            path_len = get_real_path_len(line_len)
-            print(f"Digital Line Length: {line_len:.2f} | Real Line Length: {path_len:.2f}")
+        #     # PATH LENGTH
+        #     line_len = lowest_point[1] - highest_point[1]
+        #     path_len = get_real_path_len(line_len)
+        #     print(f"Digital Line Length: {line_len:.2f} | Real Line Length: {path_len:.2f}")
             
             # OUTPUTS
-            optimal_duty_cycle = get_optimal_speed(path_len) # TODO implement speed control
+            #optimal_duty_cycle = get_optimal_speed(path_len) # TODO implement speed control
             pid.get_offset(hsv, native_width, "r")
             pid.calculate_control_signal()
             left_duty_cycle, right_duty_cycle = pid.get_differential_speed()
+            print(left_duty_cycle, right_duty_cycle)
             drive_motors(left_duty_cycle, right_duty_cycle)
-                
+
         else:
             print("No red line detected")
             stop_motors()
