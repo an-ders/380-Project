@@ -77,11 +77,13 @@ class PID:
 
     def get_differential_speed(self):
         # Calculate motor speeds
-        if self.control_signal > 0:  # Need to turn right
-            left_duty_cycle = MIN_DUTY_CYCLE
-            right_duty_cycle = MIN_DUTY_CYCLE * (1 - abs(self.control_signal))
-        else: #if self.control_signal < 0:  # Need to turn left
-            left_duty_cycle = MIN_DUTY_CYCLE * (1 - abs(self.control_signal))
-            right_duty_cycle = MIN_DUTY_CYCLE
+        left_duty_cycle = MIN_DUTY_CYCLE - self.control_signal
+        right_duty_cycle = MIN_DUTY_CYCLE + self.control_signal
+        # if self.control_signal > 0:  # Need to turn right
+        #     left_duty_cycle = MIN_DUTY_CYCLE
+        #     right_duty_cycle = MIN_DUTY_CYCLE * (1 - abs(self.control_signal))
+        # else: #if self.control_signal < 0:  # Need to turn left
+        #     left_duty_cycle = MIN_DUTY_CYCLE * (1 - abs(self.control_signal))
+        #     right_duty_cycle = MIN_DUTY_CYCLE
         return left_duty_cycle, right_duty_cycle
 
