@@ -52,7 +52,6 @@ class PID:
             # Calculate error (replaces offset)
             center_x = frame_width // 2
             self.error = (red_center_x - center_x)
-            #self.error = 360*(self.error)-1
             print("Offset: ", self.error)
         else:
             # Reset PID variables when line is lost
@@ -79,8 +78,8 @@ class PID:
 
     def get_differential_speed(self):
         # Calculate motor speeds
-        left_duty_cycle = MIN_DUTY_CYCLE - self.control_signal
-        right_duty_cycle = MIN_DUTY_CYCLE + self.control_signal
+        left_duty_cycle = MIN_DUTY_CYCLE + self.control_signal
+        right_duty_cycle = MIN_DUTY_CYCLE - self.control_signal
         # if self.control_signal > 0:  # Need to turn right
         #     left_duty_cycle = MIN_DUTY_CYCLE
         #     right_duty_cycle = MIN_DUTY_CYCLE * (1 - abs(self.control_signal))

@@ -85,8 +85,8 @@ def drive_to_target_main():
             highest_point = min(points, key=lambda p: p[0])  # Point with smallest x
             lowest_point = max(points, key=lambda p: p[0])   # Point with largest x
             mid_x = float(lowest_point[0] + (highest_point[0]-lowest_point[0])/2)
-            offset = (720/2) - mid_x
-            scaled_offset = -1*offset/360
+            offset = (native_width/2) - mid_x
+            scaled_offset = -1*offset/(native_width/2)
             
             # Draw max and min positions
             frame_height = frame.shape[0] 
@@ -103,9 +103,8 @@ def drive_to_target_main():
             #optimal_duty_cycle = get_optimal_speed(path_len) # TODO implement speed control
             #pid.get_offset(hsv, native_width, "r")
             pid.calculate_control_signal(scaled_offset)
-            print(scaled_offset)
             left_duty_cycle, right_duty_cycle = pid.get_differential_speed()
-            #print(left_duty_cycle, right_duty_cycle)
+            print(left_duty_cycle, right_duty_cycle)
             drive_motors(left_duty_cycle, right_duty_cycle)
 
         else:
