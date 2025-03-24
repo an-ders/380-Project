@@ -11,7 +11,7 @@ Increase Kd. Add small values of Kd to dampen oscillations and smooth movement.
 Add Ki. If the robot has slow corrections or drifts over time, increase Ki slightly to improve steady-state accuracy.
 """
 
-KP = 0.01  # Proportional gain
+KP = 0.005  # Proportional gain
 KI = 0.0  # Integral gain
 KD = 0.0  # Derivative gain
 
@@ -21,6 +21,10 @@ class PID:
         self.integral = 0
         self.error = 0
         # derivative does not need to be a class variable
+
+    def scale_offset(self, offset):
+        center_x = 720 / 2
+        return offset / center_x  # returns value in [-1, 1]
 
     def get_offset(self, hsv, frame_width, color):
         """Takes HSV frame, updates offset"""
@@ -52,6 +56,7 @@ class PID:
             # Calculate error (replaces offset)
             center_x = frame_width // 2
             self.error = (red_center_x - center_x)
+            self.error = (self.error - (720/2))/720
             print("Offset: ", self.error)
         else:
             # Reset PID variables when line is lost
