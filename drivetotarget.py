@@ -104,6 +104,7 @@ def drive_to_target_main():
                 
         else:
             print("No red line detected")
+            stop_motors()
 
         target = is_target_close(hsv)
 
