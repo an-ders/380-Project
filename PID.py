@@ -22,10 +22,6 @@ class PID:
         self.error = 0
         # derivative does not need to be a class variable
 
-    def scale_offset(self, offset):
-        center_x = 720 / 2
-        return offset / center_x  # returns value in [-1, 1]
-
     def get_offset(self, hsv, frame_width, color):
         """Takes HSV frame, updates offset"""
         if color == "r":
@@ -56,7 +52,7 @@ class PID:
             # Calculate error (replaces offset)
             center_x = frame_width // 2
             self.error = (red_center_x - center_x)
-            self.error = (self.error - (720/2))/720
+            #self.error = 360*(self.error)-1
             print("Offset: ", self.error)
         else:
             # Reset PID variables when line is lost
@@ -66,8 +62,9 @@ class PID:
             stop_motors()
             print("No red line detected")
 
-    def calculate_control_signal(self):
+    def calculate_control_signal(self, offset):
         # PID calculations
+        self.error = offset
         self.integral += self.error
         derivative = self.error - self.previous_error
         

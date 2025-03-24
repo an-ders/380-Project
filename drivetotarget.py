@@ -42,8 +42,8 @@ def drive_to_target_main():
         cap = cv.VideoCapture(0)
 
     # Get native resolution and swap width/height for portrait orientation
-    native_width = int(cap.get(cv.CAP_PROP_FRAME_HEIGHT))  # Swapped
-    native_height = int(cap.get(cv.CAP_PROP_FRAME_WIDTH))  # Swapped
+    native_height = int(cap.get(cv.CAP_PROP_FRAME_HEIGHT))  # Swapped
+    native_width = int(cap.get(cv.CAP_PROP_FRAME_WIDTH))  # Swapped
 
     # Set video parameters
     # Original height becomes width
@@ -60,7 +60,7 @@ def drive_to_target_main():
             print("Failed to capture frame")
             break
 
-        frame = cv.rotate(frame, cv.ROTATE_90_COUNTERCLOCKWISE)  # Resize frame for consistency
+        #frame = cv.rotate(frame, cv.ROTATE_90_COUNTERCLOCKWISE)  # Resize frame for consistency
         hsv = cv.cvtColor(frame, cv.COLOR_BGR2HSV)  # Convert to HSV color space
         mask = cv.inRange(hsv, RED_HSV_RANGE['lower'], RED_HSV_RANGE['upper'])  # Create masks for red color
         red_regions = cv.bitwise_and(frame, frame, mask=mask)  # Apply mask to isolate red regions
@@ -75,20 +75,24 @@ def drive_to_target_main():
         lines = cv.HoughLinesP(edges, 1, np.pi / 180, threshold=50, minLineLength=50, maxLineGap=10)
 
         # # Draw the detected lines on the original frame
-        # points = []
+        points = []
         if lines is not None:
-        #     for line in lines:
-        #         x1, y1, x2, y2 = line[0]  # Unpack line endpoints
-        #         points.append((x1, y1))
-        #         points.append((x2, y2))
-        #         cv.line(frame, (x1, y1), (x2, y2), (0, 255, 0), 2)  # Draw line in green
-        #     highest_point = min(points, key=lambda p: p[1])  # Point with smallest y
-        #     lowest_point = max(points, key=lambda p: p[1])   # Point with largest y
+            for line in lines:
+                x1, y1, x2, y2 = line[0]  # Unpack line endpoints
+                points.append((x1, y1))
+                points.append((x2, y2))
+                cv.line(frame, (x1, y1), (x2, y2), (0, 255, 0), 2)  # Draw line in green
+            highest_point = min(points, key=lambda p: p[0])  # Point with smallest x
+            lowest_point = max(points, key=lambda p: p[0])   # Point with largest x
+            mid_x = float(lowest_point[0] + (highest_point[0]-lowest_point[0])/2)
+            offset = (720/2) - mid_x
+            scaled_offset = -1*offset/360
             
-        #     # Draw max and min positions
-        #     frame_width = frame.shape[1]  
-        #     cv.line(frame, (0, highest_point[1]), (frame_width, highest_point[1]), (255, 255, 0), 2)  # Cyan # Draw horizontal line at the highest y-value (topmost detected edge)
-        #     cv.line(frame, (0, lowest_point[1]), (frame_width, lowest_point[1]), (255, 255, 0), 2)  # Cyan # Draw horizontal line at the lowest y-value (bottommost detected edge)
+            # Draw max and min positions
+            frame_height = frame.shape[0] 
+            cv.line(frame, (int(mid_x), 0), (int(mid_x), frame_height), (255, 255, 0), 2)  # Cyan # Draw vertical line at the highest y-value (topmost detected edge)
+            # cv.line(frame, (highest_point[0], 0), (highest_point[0], frame_height), (255, 255, 0), 2)  # Cyan # Draw vertical line at the highest y-value (topmost detected edge)
+            # cv.line(frame, (lowest_point[0], 0), (lowest_point[0], frame_height), (255, 255, 0), 2)  # Cyan # Draw vertical line at the lowest y-value (bottommost detected edge)
 
         #     # PATH LENGTH
         #     line_len = lowest_point[1] - highest_point[1]
@@ -97,10 +101,11 @@ def drive_to_target_main():
             
             # OUTPUTS
             #optimal_duty_cycle = get_optimal_speed(path_len) # TODO implement speed control
-            pid.get_offset(hsv, native_width, "r")
-            pid.calculate_control_signal()
+            #pid.get_offset(hsv, native_width, "r")
+            pid.calculate_control_signal(scaled_offset)
+            print(scaled_offset)
             left_duty_cycle, right_duty_cycle = pid.get_differential_speed()
-            print(left_duty_cycle, right_duty_cycle)
+            #print(left_duty_cycle, right_duty_cycle)
             drive_motors(left_duty_cycle, right_duty_cycle)
 
         else:
