@@ -30,6 +30,7 @@ def is_target_close(hsv_frame):
     blue_pixels = np.where(blue_mask > 0)
     if len(blue_pixels[1]) > 0:
         print("Target Identified.")
+        stop_motors()
         return True
     else:
         return False
