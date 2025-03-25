@@ -198,6 +198,17 @@ def turn_right():
 
     stop_motors()
 
+def turn_left2():
+    drive_right_motor(MIN_DUTY_CYCLE)
+    while right_motor_distance()<0.3:
+        continue
+    stop_motors()
+
+def turn_right2():
+    drive_left_motor(MIN_DUTY_CYCLE)
+    while left_motor_distance()<0.3:
+        continue
+    stop_motors()
 
 def turn_left():
     right_steps = left_encoder.steps
@@ -254,10 +265,10 @@ if __name__ == "__main__":
         stop_motors()
 
         print("Turn right.")
-        turn_right()
+        turn_right2()
         sleep(1)
         print("Turn left.")
-        turn_left()
+        turn_left2()
         sleep(1)
         stop_motors()
     except:
