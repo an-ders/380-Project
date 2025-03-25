@@ -15,14 +15,6 @@ B = MAX_DUTY_CYCLE-MAX_LEN*M
 REAL_M = 1
 REAL_B = 0
 
-def get_real_path_len(line_len):
-    path_len = REAL_M*line_len + REAL_B
-    return path_len
-
-def get_optimal_speed(path_len):
-    speed = M*path_len + B
-    return speed
-
 def is_target_close(hsv_frame):
     """Takes HSV frame, returns whether blue is close or not"""
     # TODO reactivate
@@ -36,6 +28,37 @@ def is_target_close(hsv_frame):
         return True
     else:
         return False
+    
+def get_ROI(height, width):
+    """
+    Creates a binary mask with:
+    - The bottom 20% of the frame filled white
+    - A triangle above that, connecting the top center to the bottom corners of the 20% line
+    - The top 40% of the frame is blacked out (not part of the ROI)
+
+    Returns:
+        region_of_interest (np.ndarray): A binary mask (uint8) with ROI marked as 255
+    """
+    # Create a blank (black) mask
+    region_of_interest = np.zeros((height, width), dtype=np.uint8)
+
+    # Bottom 20% rectangle
+    roi_start_y = int(height * 0.8)
+    region_of_interest[roi_start_y:, :] = 255
+
+    # Triangle above the bottom 20%
+    triangle_top = (width // 2, 0)                   # Top center
+    triangle_left = (0, roi_start_y)                 # Bottom left of triangle
+    triangle_right = (width, roi_start_y)            # Bottom right of triangle
+
+    triangle = np.array([triangle_top, triangle_right, triangle_left])
+    cv.drawContours(region_of_interest, [triangle], 0, 255, -1)  # Fill triangle
+
+    # Cut off the top 40% of the frame
+    top_cutoff_y = int(height * 0.35)
+    region_of_interest[:top_cutoff_y, :] = 0
+
+    return region_of_interest
 
 def drive_to_target_main():
     # Initialize webcam
@@ -49,6 +72,7 @@ def drive_to_target_main():
     
     pid = PID.PID()
     target = False
+    region_of_interest = get_ROI(native_height, native_width)
     while not target:
         # Capture frame
         ret, frame = cap.read()
@@ -60,10 +84,6 @@ def drive_to_target_main():
         hsv = cv.cvtColor(frame, cv.COLOR_BGR2HSV)  # Convert to HSV color space
         mask1 = cv.inRange(hsv, RED_HSV_RANGE['lower_red1'], RED_HSV_RANGE['upper_red1'])  # Create masks for red color
         mask2 = cv.inRange(hsv, RED_HSV_RANGE['lower_red2'], RED_HSV_RANGE['upper_red2'])  # Create masks for red color
-        
-        region_of_interest = np.zeros((native_height, native_width), dtype=np.uint8) # Create a blank (black) mask
-        roi_start_y = int(native_height * 0.3)  # Calculate the Y-coordinate where the bottom 70% starts
-        region_of_interest[roi_start_y:, :] = 255  # Fill the bottom 70% with white (255)
 
         mask = cv.bitwise_or(mask1, mask2)  # get all red
         mask = cv.bitwise_and(mask, region_of_interest)  # isolate for ROI
@@ -109,7 +129,7 @@ def drive_to_target_main():
         target = is_target_close(hsv)
 
         # Display the original frame with detected lines
-        cv.imshow('Red Line Detection', mask_bgr)
+        cv.imshow('Red Line Detection', region_of_interest)#mask_bgr)
 
         # Break loop on user interrupt (e.g., 'q' key press)
         if cv.waitKey(1) & 0xFF == ord('q'):
