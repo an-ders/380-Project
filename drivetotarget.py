@@ -44,13 +44,6 @@ def drive_to_target_main():
 
     native_height = int(cap.get(cv.CAP_PROP_FRAME_HEIGHT))
     native_width = int(cap.get(cv.CAP_PROP_FRAME_WIDTH))
-
-    # Set video parameters
-    # Original height becomes width
-    # TODO REMOVE ME, REDUNDANT
-    cap.set(cv.CAP_PROP_FRAME_WIDTH, native_width)
-    # Original width becomes height
-    cap.set(cv.CAP_PROP_FRAME_HEIGHT, native_height)
     
     pid = PID.PID()
     target = False
@@ -115,7 +108,7 @@ def drive_to_target_main():
         target = is_target_close(hsv)
 
         # Display the original frame with detected lines
-        cv.imshow('Red Line Detection', frame)
+        cv.imshow('Red Line Detection', mask)
 
         # Break loop on user interrupt (e.g., 'q' key press)
         if cv.waitKey(1) & 0xFF == ord('q'):
