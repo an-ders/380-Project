@@ -23,7 +23,7 @@ FPS = 20
 MAX_VOLTAGE = 12
 MOTOR_VOLTAGE = 7
 MAX_DUTY_CYCLE = MOTOR_VOLTAGE / MAX_VOLTAGE
-MIN_DUTY_CYCLE = 0.18
+MIN_DUTY_CYCLE = 0.2
 
 WHEEL_D = 0.0677
 WHEEL_CIRCUMFERENCE = 3.14159265359 * WHEEL_D
@@ -254,10 +254,10 @@ if __name__ == "__main__":
         stop_motors()
 
         print("Turn right.")
-        drive_motors(MIN_DUTY_CYCLE, -MIN_DUTY_CYCLE)
+        turn_right()
         sleep(1)
         print("Turn left.")
-        drive_motors(-MIN_DUTY_CYCLE, MIN_DUTY_CYCLE)
+        turn_left()
         sleep(1)
         stop_motors()
     except:

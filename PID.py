@@ -1,5 +1,6 @@
 import cv2 as cv
 from hardware import *
+from collections import deque
 
 """
 Use a systematic approach like Ziegler-Nichols Method or manual tuning:
@@ -11,9 +12,10 @@ Increase Kd. Add small values of Kd to dampen oscillations and smooth movement.
 Add Ki. If the robot has slow corrections or drifts over time, increase Ki slightly to improve steady-state accuracy.
 """
 
-KP = 0.035  # Proportional gain
+KP = 0.1  # Proportional gain
 KI = 0.0  # Integral gain
 KD = 0.0  # Derivative gain
+DEQUE_SIZE = 500
 
 class PID:
     def __init__(self):
@@ -21,6 +23,9 @@ class PID:
         self.integral = 0
         self.error = 0
         # derivative does not need to be a class variable
+
+        self.control_signal_history = deque(maxlen=DEQUE_SIZE)
+        self.error_history = deque(maxlen=DEQUE_SIZE)
 
     def calculate_control_signal(self, offset):
         # PID calculations
@@ -30,22 +35,18 @@ class PID:
         
         # Calculate control signal
         self.control_signal = (KP * self.error) + (KI * self.integral) + (KD * derivative)
-        
-        # Clamp control signal to [-1, 1]
-        # self.control_signal = max(min(self.control_signal, 1), -1)
 
         # Update previous error
         self.previous_error = self.error
+
+        # Update histories
+        self.control_signal_history.append(self.control_signal)
+        self.error_history.append(self.control_signal)
+
 
     def get_differential_speed(self):
         # Calculate motor speeds
         left_duty_cycle = MIN_DUTY_CYCLE + self.control_signal
         right_duty_cycle = MIN_DUTY_CYCLE - self.control_signal
-        # if self.control_signal > 0:  # Need to turn right
-        #     left_duty_cycle = MIN_DUTY_CYCLE
-        #     right_duty_cycle = MIN_DUTY_CYCLE * (1 - abs(self.control_signal))
-        # else: #if self.control_signal < 0:  # Need to turn left
-        #     left_duty_cycle = MIN_DUTY_CYCLE * (1 - abs(self.control_signal))
-        #     right_duty_cycle = MIN_DUTY_CYCLE
         return left_duty_cycle, right_duty_cycle
 
