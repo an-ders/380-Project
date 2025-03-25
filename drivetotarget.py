@@ -73,6 +73,7 @@ def drive_to_target_main():
     region_of_interest = get_ROI(native_height, native_width)
     buffer = deque(maxlen=BUFFER_CAPACITY)  # mid_x
     got_line = False  # bool on whether or not line is tracked, prevents premature exit of program
+    count = 10
     while not target:
         # Capture frame
         ret, frame = cap.read()
@@ -135,8 +136,13 @@ def drive_to_target_main():
         pid.calculate_control_signal(scaled_offset)
         left_duty_cycle, right_duty_cycle = pid.get_differential_speed()
         print(f"{left_duty_cycle:.3f}, {right_duty_cycle:.3f}")
-        drive_motors(left_duty_cycle, right_duty_cycle)
-        target = is_target_close(hsv)
+        
+        # THROW AWAY FIRST 10 FRAMES
+        if count == 0:
+            drive_motors(left_duty_cycle, right_duty_cycle)
+            target = is_target_close(hsv)
+        else:
+            count -= 1
 
         # Display the original frame with detected lines
         cv.imshow('Red Line Detection', mask_bgr)
