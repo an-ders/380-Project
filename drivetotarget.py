@@ -121,6 +121,7 @@ def drive_to_target_main():
         # UPDATE MID_X AND OFFSET regardless of if we detect line or not
         average_mid_x = sum(buffer) / len(buffer)
         if (average_mid_x == 0) and (got_line):
+            # FIXME causing a left bias
             print("Red line out of sight. Stopping motors.")
             stop_motors()
             break
@@ -132,7 +133,7 @@ def drive_to_target_main():
         cv.line(mask_bgr, (int(average_mid_x), 0), (int(average_mid_x), native_height), (255, 255, 0), 2)  
         pid.calculate_control_signal(scaled_offset)
         left_duty_cycle, right_duty_cycle = pid.get_differential_speed()
-        print(left_duty_cycle, right_duty_cycle)
+        print(f"{left_duty_cycle:.3f}, {right_duty_cycle:.3f}")
         drive_motors(left_duty_cycle, right_duty_cycle)
         target = is_target_close(hsv)
 
