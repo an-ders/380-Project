@@ -41,15 +41,15 @@ def drive_to_target_main():
     else:
         cap = cv.VideoCapture(0)
 
-    # Get native resolution and swap width/height for portrait orientation
-    native_height = int(cap.get(cv.CAP_PROP_FRAME_HEIGHT))  # Swapped
-    native_width = int(cap.get(cv.CAP_PROP_FRAME_WIDTH))  # Swapped
+    native_height = int(cap.get(cv.CAP_PROP_FRAME_HEIGHT))
+    native_width = int(cap.get(cv.CAP_PROP_FRAME_WIDTH))
 
     # Set video parameters
     # Original height becomes width
-    cap.set(cv.CAP_PROP_FRAME_WIDTH, native_height)
+    # TODO REMOVE ME, REDUNDANT
+    cap.set(cv.CAP_PROP_FRAME_WIDTH, native_width)
     # Original width becomes height
-    cap.set(cv.CAP_PROP_FRAME_HEIGHT, native_width)
+    cap.set(cv.CAP_PROP_FRAME_HEIGHT, native_height)
     
     pid = PID.PID()
     target = False
