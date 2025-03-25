@@ -201,13 +201,13 @@ def turn_right():
 def turn_left2():
     drive_right_motor(MIN_DUTY_CYCLE)
     while right_motor_distance()<0.3:
-        continue
+        print(right_motor_distance())
     stop_motors()
 
 def turn_right2():
     drive_left_motor(MIN_DUTY_CYCLE)
     while left_motor_distance()<0.3:
-        continue
+        print(left_motor_distance())
     stop_motors()
 
 def turn_left():
