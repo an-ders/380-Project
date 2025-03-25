@@ -46,7 +46,7 @@ def get_ROI(height, width):
     region_of_interest = np.zeros((height, width), dtype=np.uint8)
 
     # Bottom 30% starting from 60% height
-    roi_start_y = int(height * 0.7)
+    roi_start_y = int(height * 0.75)  # whatever number is here, the 1-x is the bottom percent that is visible
     roi_end_y = height
 
     # Middle 50% in X direction
