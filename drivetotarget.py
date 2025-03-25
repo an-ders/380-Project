@@ -4,6 +4,8 @@ from math import log
 from hardware import *
 import platform
 import PID
+from collections import deque
+
 
 MAX_TURNS = 9
 
@@ -14,6 +16,7 @@ M = (MAX_DUTY_CYCLE-MIN_DUTY_CYCLE)/(MAX_LEN-MIN_LEN)
 B = MAX_DUTY_CYCLE-MAX_LEN*M
 REAL_M = 1
 REAL_B = 0
+BUFFER_CAPACITY = 5
 
 def is_target_close(hsv_frame):
     """Takes HSV frame, returns whether blue is close or not"""
@@ -42,21 +45,28 @@ def get_ROI(height, width):
     # Create a blank (black) mask
     region_of_interest = np.zeros((height, width), dtype=np.uint8)
 
-    # Bottom 20% rectangle
-    roi_start_y = int(height * 0.8)
-    region_of_interest[roi_start_y:, :] = 255
+    # Bottom 30% starting from 60% height
+    roi_start_y = int(height * 0.7)
+    roi_end_y = height
 
-    # Triangle above the bottom 20%
-    triangle_top = (width // 2, 0)                   # Top center
-    triangle_left = (0, roi_start_y)                 # Bottom left of triangle
-    triangle_right = (width, roi_start_y)            # Bottom right of triangle
+    # Middle 50% in X direction
+    roi_start_x = int(width * 0.25)
+    roi_end_x = int(width * 0.75)
 
-    triangle = np.array([triangle_top, triangle_right, triangle_left])
-    cv.drawContours(region_of_interest, [triangle], 0, 255, -1)  # Fill triangle
+    # Fill only the intersection: vertical 60–100% and horizontal 25–75%
+    region_of_interest[roi_start_y:roi_end_y, roi_start_x:roi_end_x] = 255
 
-    # Cut off the top 40% of the frame
-    top_cutoff_y = int(height * 0.35)
-    region_of_interest[:top_cutoff_y, :] = 0
+    # # Triangle above the bottom 20%
+    # triangle_top = (width // 2, 0)                   # Top center
+    # triangle_left = (0, roi_start_y)                 # Bottom left of triangle
+    # triangle_right = (width, roi_start_y)            # Bottom right of triangle
+
+    # triangle = np.array([triangle_top, triangle_right, triangle_left])
+    # cv.drawContours(region_of_interest, [triangle], 0, 255, -1)  # Fill triangle
+
+    # # Cut off the top 40% of the frame
+    # top_cutoff_y = int(height * 0.8)
+    # region_of_interest[:top_cutoff_y, :] = 0
 
     return region_of_interest
 
@@ -73,6 +83,7 @@ def drive_to_target_main():
     pid = PID.PID()
     target = False
     region_of_interest = get_ROI(native_height, native_width)
+    buffer = deque(maxlen=BUFFER_CAPACITY)  # mid_x
     while not target:
         # Capture frame
         ret, frame = cap.read()
@@ -110,26 +121,33 @@ def drive_to_target_main():
             highest_point = min(points, key=lambda p: p[0])  # Point with smallest x
             lowest_point = max(points, key=lambda p: p[0])   # Point with largest x
             mid_x = float(lowest_point[0] + (highest_point[0]-lowest_point[0])/2)
-            offset = (native_width/2) - mid_x
-            scaled_offset = -1*offset/(native_width/2)
-            
-            frame_height = frame.shape[0] 
-            # Draw vertical line of offset
-            cv.line(mask_bgr, (int(mid_x), 0), (int(mid_x), frame_height), (255, 255, 0), 2)  
-
-            pid.calculate_control_signal(scaled_offset)
-            left_duty_cycle, right_duty_cycle = pid.get_differential_speed()
-            print(left_duty_cycle, right_duty_cycle)
-            drive_motors(left_duty_cycle, right_duty_cycle)
+            buffer.append(mid_x)
 
         else:
+            buffer.append(0)
             print("No red line detected")
             stop_motors()
 
+        # UPDATE MID_X AND OFFSET regardless of if we detect line or not
+        average_mid_x = sum(buffer) / len(buffer)
+        if average_mid_x == 0:
+            print("Red line out of sight.")
+            stop_motors()
+
+        offset = (native_width/2) - average_mid_x
+        scaled_offset = -1*offset/(native_width/2)
+
+        #frame_height = frame.shape[0] # TODO delete me redundant
+        # Draw vertical line of offset
+        cv.line(mask_bgr, (int(average_mid_x), 0), (int(average_mid_x), native_height), (255, 255, 0), 2)  
+        pid.calculate_control_signal(scaled_offset)
+        left_duty_cycle, right_duty_cycle = pid.get_differential_speed()
+        print(left_duty_cycle, right_duty_cycle)
+        drive_motors(left_duty_cycle, right_duty_cycle)
         target = is_target_close(hsv)
 
         # Display the original frame with detected lines
-        cv.imshow('Red Line Detection', region_of_interest)#mask_bgr)
+        cv.imshow('Red Line Detection', mask_bgr)
 
         # Break loop on user interrupt (e.g., 'q' key press)
         if cv.waitKey(1) & 0xFF == ord('q'):
