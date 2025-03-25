@@ -50,8 +50,8 @@ def get_ROI(height, width):
     roi_end_y = height
 
     # Middle 50% in X direction
-    roi_start_x = int(width * 0.25)
-    roi_end_x = int(width * 0.75)
+    roi_start_x = int(width * 0.2)
+    roi_end_x = int(width * 0.8)
 
     # Fill only the intersection: vertical 60–100% and horizontal 25–75%
     region_of_interest[roi_start_y:roi_end_y, roi_start_x:roi_end_x] = 255
