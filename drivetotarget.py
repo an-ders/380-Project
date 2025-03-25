@@ -50,8 +50,8 @@ def get_ROI(height, width):
     roi_end_y = height
 
     # Middle 50% in X direction
-    roi_start_x = int(width * 0.2)
-    roi_end_x = int(width * 0.8)
+    roi_start_x = int(width * 0.1)
+    roi_end_x = int(width * 0.9)
 
     # Fill only the intersection: vertical 60–100% and horizontal 25–75%
     region_of_interest[roi_start_y:roi_end_y, roi_start_x:roi_end_x] = 255
@@ -133,6 +133,7 @@ def drive_to_target_main():
         if average_mid_x == 0:
             print("Red line out of sight.")
             stop_motors()
+            break
 
         offset = (native_width/2) - average_mid_x
         scaled_offset = -1*offset/(native_width/2)
