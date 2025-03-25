@@ -56,18 +56,6 @@ def get_ROI(height, width):
     # Fill only the intersection: vertical 60–100% and horizontal 25–75%
     region_of_interest[roi_start_y:roi_end_y, roi_start_x:roi_end_x] = 255
 
-    # # Triangle above the bottom 20%
-    # triangle_top = (width // 2, 0)                   # Top center
-    # triangle_left = (0, roi_start_y)                 # Bottom left of triangle
-    # triangle_right = (width, roi_start_y)            # Bottom right of triangle
-
-    # triangle = np.array([triangle_top, triangle_right, triangle_left])
-    # cv.drawContours(region_of_interest, [triangle], 0, 255, -1)  # Fill triangle
-
-    # # Cut off the top 40% of the frame
-    # top_cutoff_y = int(height * 0.8)
-    # region_of_interest[:top_cutoff_y, :] = 0
-
     return region_of_interest
 
 def drive_to_target_main():
@@ -84,6 +72,7 @@ def drive_to_target_main():
     target = False
     region_of_interest = get_ROI(native_height, native_width)
     buffer = deque(maxlen=BUFFER_CAPACITY)  # mid_x
+    got_line = False  # bool on whether or not line is tracked, prevents premature exit of program
     while not target:
         # Capture frame
         ret, frame = cap.read()
@@ -113,6 +102,7 @@ def drive_to_target_main():
         points = []
         mask_bgr = cv.cvtColor(mask, cv.COLOR_GRAY2BGR)
         if lines is not None:
+            got_line = True
             for line in lines:
                 x1, y1, x2, y2 = line[0]  # Unpack line endpoints
                 points.append((x1, y1))
@@ -130,15 +120,14 @@ def drive_to_target_main():
 
         # UPDATE MID_X AND OFFSET regardless of if we detect line or not
         average_mid_x = sum(buffer) / len(buffer)
-        if average_mid_x == 0:
-            print("Red line out of sight.")
+        if (average_mid_x == 0) and (got_line):
+            print("Red line out of sight. Stopping motors.")
             stop_motors()
             break
 
         offset = (native_width/2) - average_mid_x
         scaled_offset = -1*offset/(native_width/2)
 
-        #frame_height = frame.shape[0] # TODO delete me redundant
         # Draw vertical line of offset
         cv.line(mask_bgr, (int(average_mid_x), 0), (int(average_mid_x), native_height), (255, 255, 0), 2)  
         pid.calculate_control_signal(scaled_offset)
