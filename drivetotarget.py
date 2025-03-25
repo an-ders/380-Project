@@ -25,6 +25,8 @@ def get_optimal_speed(path_len):
 
 def is_target_close(hsv_frame):
     """Takes HSV frame, returns whether blue is close or not"""
+    # TODO reactivate
+    return False
     blue_mask = cv.inRange(hsv_frame, BLUE_HSV_RANGE['lower'], BLUE_HSV_RANGE['upper'])
     blue_mask[:-100, :] = 0  # Keep only bottom 100 pixels
     blue_pixels = np.where(blue_mask > 0)
