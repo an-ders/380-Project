@@ -11,7 +11,7 @@ Increase Kd. Add small values of Kd to dampen oscillations and smooth movement.
 Add Ki. If the robot has slow corrections or drifts over time, increase Ki slightly to improve steady-state accuracy.
 """
 
-KP = 0.05  # Proportional gain
+KP = 0.04  # Proportional gain
 KI = 0.0  # Integral gain
 KD = 0.0  # Derivative gain
 
