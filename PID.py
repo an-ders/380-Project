@@ -22,44 +22,44 @@ class PID:
         self.error = 0
         # derivative does not need to be a class variable
 
-    def get_offset(self, hsv, frame_width, color):
-        """Takes HSV frame, updates offset"""
-        if color == "r":
-            range = RED_HSV_RANGE
-        elif color == "b":
-            range = BLUE_HSV_RANGE
-        elif color == "g":
-            range = GREEN_HSV_RANGE
-        else:
-            print("Invalid color.")
-            raise
+    # def get_offset(self, hsv, frame_width, color):
+    #     """Takes HSV frame, updates offset"""
+    #     if color == "r":
+    #         range = RED_HSV_RANGE
+    #     elif color == "b":
+    #         range = BLUE_HSV_RANGE
+    #     elif color == "g":
+    #         range = GREEN_HSV_RANGE
+    #     else:
+    #         print("Invalid color.")
+    #         raise
 
-        # Create red mask and keep only bottom 100 pixels
-        mask = cv.inRange(
-            hsv, range['lower'], range['upper'])
-        if color == "r":
-            mask[:-100, :] = 0  # Keep only bottom 100 pixels
+    #     # Create red mask and keep only bottom 100 pixels
+    #     mask = cv.inRange(
+    #         hsv, range['lower'], range['upper'])
+    #     if color == "r":
+    #         mask[:-100, :] = 0  # Keep only bottom 100 pixels
 
-        # Find red pixels in the bottom region
-        pixels = np.where(mask > 0)
+    #     # Find red pixels in the bottom region
+    #     pixels = np.where(mask > 0)
             
-        if len(pixels[1]) > 0:  # If red line is detected
-            # Find max and min X coordinates of the red line
-            max_x = np.max(pixels[1])
-            min_x = np.min(pixels[1])
-            red_center_x = (max_x + min_x) / 2
+    #     if len(pixels[1]) > 0:  # If red line is detected
+    #         # Find max and min X coordinates of the red line
+    #         max_x = np.max(pixels[1])
+    #         min_x = np.min(pixels[1])
+    #         red_center_x = (max_x + min_x) / 2
 
-            # Calculate error (replaces offset)
-            center_x = frame_width // 2
-            self.error = (red_center_x - center_x)
-            print("Offset: ", self.error)
-        else:
-            # Reset PID variables when line is lost
-            self.integral = 0
-            self.previous_error = 0
-            # If no red line is detected, stop motors
-            stop_motors()
-            print("No red line detected")
+    #         # Calculate error (replaces offset)
+    #         center_x = frame_width // 2
+    #         self.error = (red_center_x - center_x)
+    #         print("Offset: ", self.error)
+    #     else:
+    #         # Reset PID variables when line is lost
+    #         self.integral = 0
+    #         self.previous_error = 0
+    #         # If no red line is detected, stop motors
+    #         stop_motors()
+    #         print("No red line detected")
 
     def calculate_control_signal(self, offset):
         # PID calculations

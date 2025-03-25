@@ -56,7 +56,15 @@ def drive_to_target_main():
 
         #frame = cv.rotate(frame, cv.ROTATE_90_COUNTERCLOCKWISE)  # Resize frame for consistency
         hsv = cv.cvtColor(frame, cv.COLOR_BGR2HSV)  # Convert to HSV color space
-        mask = cv.inRange(hsv, RED_HSV_RANGE['lower'], RED_HSV_RANGE['upper'])  # Create masks for red color
+        mask1 = cv.inRange(hsv, RED_HSV_RANGE['lower_red1'], RED_HSV_RANGE['upper_red1'])  # Create masks for red color
+        mask2 = cv.inRange(hsv, RED_HSV_RANGE['lower_red2'], RED_HSV_RANGE['upper_red2'])  # Create masks for red color
+        
+        region_of_interest = np.zeros((native_height, native_width), dtype=np.uint8) # Create a blank (black) mask
+        roi_start_y = int(native_height * 0.3)  # Calculate the Y-coordinate where the bottom 70% starts
+        region_of_interest[roi_start_y:, :] = 255  # Fill the bottom 70% with white (255)
+
+        mask = cv.bitwise_or(mask1, mask2)  # get all red
+        mask = cv.bitwise_and(mask, region_of_interest)  # isolate for ROI
         red_regions = cv.bitwise_and(frame, frame, mask=mask)  # Apply mask to isolate red regions
 
         # # Convert the mask to grayscale for edge detection
@@ -70,32 +78,23 @@ def drive_to_target_main():
 
         # # Draw the detected lines on the original frame
         points = []
+        mask_bgr = cv.cvtColor(mask, cv.COLOR_GRAY2BGR)
         if lines is not None:
             for line in lines:
                 x1, y1, x2, y2 = line[0]  # Unpack line endpoints
                 points.append((x1, y1))
                 points.append((x2, y2))
-                cv.line(frame, (x1, y1), (x2, y2), (0, 255, 0), 2)  # Draw line in green
+                cv.line(mask_bgr, (x1, y1), (x2, y2), (0, 0, 255), 2)  # Draw line bounds in red
             highest_point = min(points, key=lambda p: p[0])  # Point with smallest x
             lowest_point = max(points, key=lambda p: p[0])   # Point with largest x
             mid_x = float(lowest_point[0] + (highest_point[0]-lowest_point[0])/2)
             offset = (native_width/2) - mid_x
             scaled_offset = -1*offset/(native_width/2)
             
-            # Draw max and min positions
             frame_height = frame.shape[0] 
-            cv.line(frame, (int(mid_x), 0), (int(mid_x), frame_height), (255, 255, 0), 2)  # Cyan # Draw vertical line at the highest y-value (topmost detected edge)
-            # cv.line(frame, (highest_point[0], 0), (highest_point[0], frame_height), (255, 255, 0), 2)  # Cyan # Draw vertical line at the highest y-value (topmost detected edge)
-            # cv.line(frame, (lowest_point[0], 0), (lowest_point[0], frame_height), (255, 255, 0), 2)  # Cyan # Draw vertical line at the lowest y-value (bottommost detected edge)
+            # Draw vertical line of offset
+            cv.line(mask_bgr, (int(mid_x), 0), (int(mid_x), frame_height), (255, 255, 0), 2)  
 
-        #     # PATH LENGTH
-        #     line_len = lowest_point[1] - highest_point[1]
-        #     path_len = get_real_path_len(line_len)
-        #     print(f"Digital Line Length: {line_len:.2f} | Real Line Length: {path_len:.2f}")
-            
-            # OUTPUTS
-            #optimal_duty_cycle = get_optimal_speed(path_len) # TODO implement speed control
-            #pid.get_offset(hsv, native_width, "r")
             pid.calculate_control_signal(scaled_offset)
             left_duty_cycle, right_duty_cycle = pid.get_differential_speed()
             print(left_duty_cycle, right_duty_cycle)
@@ -108,7 +107,7 @@ def drive_to_target_main():
         target = is_target_close(hsv)
 
         # Display the original frame with detected lines
-        cv.imshow('Red Line Detection', mask)
+        cv.imshow('Red Line Detection', mask_bgr)
 
         # Break loop on user interrupt (e.g., 'q' key press)
         if cv.waitKey(1) & 0xFF == ord('q'):

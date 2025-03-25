@@ -40,13 +40,22 @@ RIGHT_MOTOR_BACKWARDS_STEPS_PER_REV = 220
 TURN_SPEED = 0.3
 
 RED_HSV_RANGE = {
-    'lower': np.array([0, 100, 130]),
-    # THESE RED VALUES WORKED WELL FOR THE TRACK
-    'upper': np.array([90, 255, 255])
+    # Red hue range 1 (low end)
+    'lower_red1' : np.array([0, 100, 100]),
+    'upper_red1' : np.array([10, 255, 255]),
+
+    # Red hue range 2 (high end)
+    'lower_red2' : np.array([170, 100, 100]),
+    'upper_red2' : np.array([180, 255, 255])
+
+
+    # 'lower': np.array([0, 100, 130]),
+    # # THESE RED VALUES WORKED WELL FOR THE TRACK
+    # 'upper': np.array([90, 255, 255])
     # 'lower': np.array([60, 162, 189]),  # NIGHT TRACK VALS
     # 'upper': np.array([176, 255, 255])  # NIGHT TRACK VALS
-    # 'lower': np.array([60, 130, 192]),  # NIGHT VALS
-    # 'upper': np.array([177, 255, 255])  # NIGHT VALS
+    # 'lower': np.array([60, 100, 160]),  # NIGHT VALS
+    # 'upper': np.array([160, 255, 255])  # NIGHT VALS
 }
 GREEN_HSV_RANGE = {
     'lower': np.array([40, 200, 40]),
