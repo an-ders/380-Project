@@ -133,7 +133,7 @@ def right_motor_distance():
 def left_motor_distance():
     current_count = left_encoder.steps
     revolutions = current_count / 263
-    return revolutions * WHEEL_CIRCUMFERENCE
+    return -1*(revolutions * WHEEL_CIRCUMFERENCE)
 
 
 def right_motor_rotation():
@@ -200,13 +200,13 @@ def turn_right():
 
 def turn_left2():
     drive_right_motor(MIN_DUTY_CYCLE)
-    while right_motor_distance()<0.3:
+    while right_motor_distance()<0.2:
         print(right_motor_distance())
     stop_motors()
 
 def turn_right2():
     drive_left_motor(MIN_DUTY_CYCLE)
-    while left_motor_distance()<0.3:
+    while left_motor_distance()<0.2:
         print(left_motor_distance())
     stop_motors()
 
@@ -240,6 +240,14 @@ if __name__ == "__main__":
     try:
         print("Testing motors.")
 
+        print("Turn right.")
+        turn_right2()
+        sleep(1)
+        print("Turn left.")
+        turn_left2()
+        sleep(1)
+        stop_motors()
+
         print("Right motor forwards.")
         drive_right_motor(MIN_DUTY_CYCLE)
         sleep(1)
@@ -264,13 +272,6 @@ if __name__ == "__main__":
         sleep(1)
         stop_motors()
 
-        print("Turn right.")
-        turn_right2()
-        sleep(1)
-        print("Turn left.")
-        turn_left2()
-        sleep(1)
-        stop_motors()
     except:
         stop_motors()
         raise
