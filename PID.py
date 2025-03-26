@@ -40,13 +40,17 @@ class PID:
         self.previous_error = self.error
 
         # Update histories
-        self.control_signal_history.append(self.control_signal)
-        self.error_history.append(self.control_signal)
+        # self.control_signal_history.append(self.control_signal)
+        # self.error_history.append(self.control_signal)
 
 
     def get_differential_speed(self):
         # Calculate motor speeds
-        left_duty_cycle = MIN_DUTY_CYCLE + self.control_signal
-        right_duty_cycle = MIN_DUTY_CYCLE - self.control_signal
+        if self.control_signal < 0: # turn left
+            left_duty_cycle = MIN_DUTY_CYCLE
+            right_duty_cycle = MIN_DUTY_CYCLE + self.control_signal
+        else: # turn right or controlsignal=0
+            left_duty_cycle = MIN_DUTY_CYCLE + self.control_signal
+            right_duty_cycle = MIN_DUTY_CYCLE - self.control_signal
         return left_duty_cycle, right_duty_cycle
 
