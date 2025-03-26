@@ -87,7 +87,10 @@ def drive_to_target_main():
     pid = PID.PID()
     target = False
     #region_of_interest = get_ROI(native_height, native_width)
-    buffer = deque(maxlen=BUFFER_CAPACITY)  # mid_x
+    if JERKY:
+        buffer = deque(maxlen=1)  # mid_x
+    else:
+        buffer = deque(maxlen=BUFFER_CAPACITY)  # mid_x
     got_line = False  # bool on whether or not line is tracked, prevents premature exit of program
     count = STARTUP_FRAMES
     while not target:
