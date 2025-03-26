@@ -72,14 +72,15 @@ def drive_to_target_main():
     native_width = int(cap.get(cv.CAP_PROP_FRAME_WIDTH))
 
     # Initialize plots
-    plt.ion()  # Interactive mode on
-    fig, (ax1, ax2) = plt.subplots(2, 1, figsize=(6, 6))
-    line1, = ax1.plot([], [], 'r-', label="Error")
-    line2, = ax2.plot([], [], 'b-', label="Control Signal")
-    ax1.set_ylim(-1, 1)
-    ax2.set_ylim(-1, 1)
-    ax1.legend()
-    ax2.legend()
+    if VERBOSE:
+        plt.ion()  # Interactive mode on
+        fig, (ax1, ax2) = plt.subplots(2, 1, figsize=(6, 6))
+        line1, = ax1.plot([], [], 'r-', label="Error")
+        line2, = ax2.plot([], [], 'b-', label="Control Signal")
+        ax1.set_ylim(-1, 1)
+        ax2.set_ylim(-1, 1)
+        ax1.legend()
+        ax2.legend()
     
     pid = PID.PID()
     target = False
