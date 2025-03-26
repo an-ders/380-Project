@@ -12,9 +12,9 @@ Increase Kd. Add small values of Kd to dampen oscillations and smooth movement.
 Add Ki. If the robot has slow corrections or drifts over time, increase Ki slightly to improve steady-state accuracy.
 """
 
-KP = 0.09  # Proportional gain
+KP = 0.03  # Proportional gain
 KI = 0.0  # Integral gain
-KD = 0.02  # Derivative gain
+KD = 0.0  # Derivative gain
 DEQUE_SIZE = 500
 
 class PID:
@@ -51,6 +51,6 @@ class PID:
             right_duty_cycle = MIN_DUTY_CYCLE + self.control_signal
         else: # turn right or controlsignal=0
             left_duty_cycle = MIN_DUTY_CYCLE + self.control_signal
-            right_duty_cycle = MIN_DUTY_CYCLE - self.control_signal
+            right_duty_cycle = MIN_DUTY_CYCLE
         return left_duty_cycle, right_duty_cycle
 
