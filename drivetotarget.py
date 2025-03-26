@@ -53,8 +53,8 @@ def get_ROI(height, width):
     roi_end_y = height
 
     # Middle 50% in X direction
-    roi_start_x = int(width * 0.3)
-    roi_end_x = int(width * 0.7)
+    roi_start_x = int(width * 0)
+    roi_end_x = int(width * 1)
 
     region_of_interest[roi_start_y:roi_end_y, roi_start_x:roi_end_x] = 255
 
@@ -135,29 +135,26 @@ def drive_to_target_main():
         # but this doesn't really matter
         if buffer:
             average_mid_x = sum(buffer) / len(buffer)
+            offset = (native_width/2) - average_mid_x
+            scaled_offset = -1*offset/(native_width/2)
+            # Draw vertical line of offset
+            cv.line(mask_bgr, (int(average_mid_x), 0), (int(average_mid_x), native_height), (255, 255, 0), 2)  
+            pid.calculate_control_signal(scaled_offset)
+            left_duty_cycle, right_duty_cycle = pid.get_differential_speed()
+            print(f"{left_duty_cycle:.3f}, {right_duty_cycle:.3f}")
+
+            # THROW AWAY FIRST 10 FRAMES
+            if count == 0:
+                drive_motors(left_duty_cycle, right_duty_cycle)
+                target = is_target_close(hsv)
+            else: # count is positive
+                count -= 1
         elif got_line:  # buffer has been cleared after line identified at some point
             print("Red line out of sight. Stopping motors.")
             stop_motors()
             break
-
-        offset = (native_width/2) - average_mid_x
-        scaled_offset = -1*offset/(native_width/2)
-
-        # Draw vertical line of offset
-        cv.line(mask_bgr, (int(average_mid_x), 0), (int(average_mid_x), native_height), (255, 255, 0), 2)  
-        pid.calculate_control_signal(scaled_offset)
-        left_duty_cycle, right_duty_cycle = pid.get_differential_speed()
-        print(f"{left_duty_cycle:.3f}, {right_duty_cycle:.3f}")
         
-        # THROW AWAY FIRST 10 FRAMES
-        if count == 0:
-            drive_motors(left_duty_cycle, right_duty_cycle)
-            if abs(scaled_offset) > 0.7:  # assume turn
-                print("DELAY.")
-                sleep(DELAY)  # delay turn since robot identifies turns too early
-            target = is_target_close(hsv)
-        else: # count is positive
-            count -= 1
+
 
         # Display the original frame with detected lines
         cv.imshow('Red Line Detection', mask_bgr)
