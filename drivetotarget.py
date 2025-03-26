@@ -8,7 +8,7 @@ from collections import deque
 import matplotlib.pyplot as plt
 
 STARTUP_FRAMES = 15  # number of frames to throw away on startup
-SECTION_OF_FRAME = 0.6  # bottom percentage of frame to declare as regiion of interest
+SECTION_OF_FRAME = 0.8  # bottom percentage of frame to declare as regiion of interest
 VERBOSE = False
 DELAY = 1
 MAX_TURNS = 9
