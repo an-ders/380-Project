@@ -126,15 +126,16 @@ def drive_to_target_main():
             buffer.append(mid_x)
 
         else:
-            buffer.append(0)
+            buffer.clear()
             print("No red line detected")
             stop_motors()
 
         # UPDATE MID_X AND OFFSET regardless of if we detect line or not
         # TODO fix left bias by introducing "NULL" instead of 0 when red line not identified
         # but this doesn't really matter
-        average_mid_x = sum(buffer) / len(buffer)
-        if (average_mid_x == 0) and (got_line):
+        if buffer:
+            average_mid_x = sum(buffer) / len(buffer)
+        elif got_line:  # buffer has been cleared after line identified at some point
             print("Red line out of sight. Stopping motors.")
             stop_motors()
             break
