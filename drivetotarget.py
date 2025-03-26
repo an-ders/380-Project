@@ -151,7 +151,7 @@ def drive_to_target_main():
         # THROW AWAY FIRST 10 FRAMES
         if count == 0:
             drive_motors(left_duty_cycle, right_duty_cycle)
-            if abs(scaled_offset) > 0.4:  # assume turn
+            if abs(scaled_offset) > 0.7:  # assume turn
                 print("Delay for large offset.")
                 sleep(1)  # delay turn since robot identifies turns too early
                 # MAYBE THE SLEEP ALONE WILL BE ENOUGH?
