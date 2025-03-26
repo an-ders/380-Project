@@ -141,14 +141,6 @@ def drive_to_target_main():
 
         offset = (native_width/2) - average_mid_x
         scaled_offset = -1*offset/(native_width/2)
-        if abs(scaled_offset) > 0.4:  # assume turn
-            sleep(0.5)  # delay turn since robot identifies turns too early
-            if scaled_offset < 0:  # left turn
-                print("Turning left.")
-                turn_left2()
-            else:  # right turn
-                print("Turning right.")
-                turn_right2()
 
         # Draw vertical line of offset
         cv.line(mask_bgr, (int(average_mid_x), 0), (int(average_mid_x), native_height), (255, 255, 0), 2)  
@@ -157,9 +149,15 @@ def drive_to_target_main():
         print(f"{left_duty_cycle:.3f}, {right_duty_cycle:.3f}")
         
         # THROW AWAY FIRST 10 FRAMES
-        if count < 0:
-            pass
-        elif count == 0:
+        if count == 0:
+            if abs(scaled_offset) > 0.4:  # assume turn
+                sleep(0.5)  # delay turn since robot identifies turns too early
+                if scaled_offset < 0:  # left turn
+                    print("Turning left.")
+                    turn_left2()
+                else:  # right turn
+                    print("Turning right.")
+                    turn_right2()
             drive_motors(left_duty_cycle, right_duty_cycle)
             target = is_target_close(hsv)
         else: # count is positive
