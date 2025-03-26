@@ -153,18 +153,19 @@ def drive_to_target_main():
             drive_motors(left_duty_cycle, right_duty_cycle)
             if abs(scaled_offset) > 0.4:  # assume turn
                 sleep(0.5)  # delay turn since robot identifies turns too early
-                if scaled_offset < 0:  # left turn
-                    print("Turning left.")
-                    drive_motors(0, MIN_DUTY_CYCLE)
-                    sleep(1)
-                    stop_motors()
-                    #turn_left2()
-                else:  # right turn
-                    print("Turning right.")
-                    drive_motors(MIN_DUTY_CYCLE, 0)
-                    sleep(1)
-                    stop_motors()
-                    # turn_right2()
+                # MAYBE THE SLEEP ALONE WILL BE ENOUGH?
+                # if scaled_offset < 0:  # left turn
+                #     print("Turning left.")
+                #     drive_motors(0, MIN_DUTY_CYCLE)
+                #     sleep(1)
+                #     stop_motors()
+                #     #turn_left2()
+                # else:  # right turn
+                #     print("Turning right.")
+                #     drive_motors(MIN_DUTY_CYCLE, 0)
+                #     sleep(1)
+                #     stop_motors()
+                #     # turn_right2()
             target = is_target_close(hsv)
         else: # count is positive
             count -= 1
