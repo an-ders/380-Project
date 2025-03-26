@@ -40,8 +40,8 @@ class PID:
         self.previous_error = self.error
 
         # Update histories
-        # self.control_signal_history.append(self.control_signal)
-        # self.error_history.append(self.control_signal)
+        self.control_signal_history.append(self.control_signal)
+        self.error_history.append(self.control_signal)
 
 
     def get_differential_speed(self):
