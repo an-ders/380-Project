@@ -9,6 +9,7 @@ import matplotlib.pyplot as plt
 
 STARTUP_FRAMES = 15  # number of frames to throw away on startup
 SECTION_OF_FRAME = 0.4  # bottom percentage of frame to declare as regiion of interest
+VERBOSE = False
 MAX_TURNS = 9
 
 MIN_LEN = 0.1  # m
@@ -144,10 +145,10 @@ def drive_to_target_main():
             sleep(0.5)  # delay turn since robot identifies turns too early
             if scaled_offset < 0:  # left turn
                 print("Turning left.")
-                #turn_left()
+                turn_left2()
             else:  # right turn
                 print("Turning right.")
-                #turn_right()
+                turn_right2()
 
         # Draw vertical line of offset
         cv.line(mask_bgr, (int(average_mid_x), 0), (int(average_mid_x), native_height), (255, 255, 0), 2)  
@@ -168,11 +169,12 @@ def drive_to_target_main():
         cv.imshow('Red Line Detection', mask_bgr)
         
         # Update plots
-        line1.set_data(range(len(pid.error_history)), list(pid.error_history))
-        line2.set_data(range(len(pid.control_signal_history)), list(pid.control_signal_history))
-        ax1.set_xlim(0, len(pid.error_history))
-        ax2.set_xlim(0, len(pid.control_signal_history))
-        plt.pause(0.001)
+        if VERBOSE:
+            line1.set_data(range(len(pid.error_history)), list(pid.error_history))
+            line2.set_data(range(len(pid.control_signal_history)), list(pid.control_signal_history))
+            ax1.set_xlim(0, len(pid.error_history))
+            ax2.set_xlim(0, len(pid.control_signal_history))
+            plt.pause(0.001)
 
         # Break loop on user interrupt (e.g., 'q' key press)
         if cv.waitKey(1) & 0xFF == ord('q'):
