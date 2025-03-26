@@ -126,7 +126,6 @@ def drive_to_target_main():
             buffer.append(mid_x)
 
         else:
-            buffer.clear()
             print("No red line detected")
             stop_motors()
 
