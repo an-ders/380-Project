@@ -173,7 +173,7 @@ def drive_to_target_main():
             count -= 1
 
         # Display the original frame with detected lines
-        cv.imshow('Red Line Detection', mask_bgr)
+        #cv.imshow('Red Line Detection', mask_bgr)
         
         # Update plots
         if VERBOSE:
