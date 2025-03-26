@@ -14,7 +14,7 @@ Add Ki. If the robot has slow corrections or drifts over time, increase Ki sligh
 
 KP = 0.09  # Proportional gain
 KI = 0.0  # Integral gain
-KD = 0.01  # Derivative gain
+KD = 0.02  # Derivative gain
 DEQUE_SIZE = 500
 
 class PID:
