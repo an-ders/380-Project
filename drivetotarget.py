@@ -8,7 +8,7 @@ from collections import deque
 import matplotlib.pyplot as plt
 
 STARTUP_FRAMES = 15  # number of frames to throw away on startup
-SECTION_OF_FRAME = 0.7  # bottom percentage of frame to declare as regiion of interest
+SECTION_OF_FRAME = 0.6  # bottom percentage of frame to declare as regiion of interest
 VERBOSE = False
 DELAY = 1
 MAX_TURNS = 9
@@ -53,10 +53,9 @@ def get_ROI(height, width):
     roi_end_y = height
 
     # Middle 50% in X direction
-    roi_start_x = int(width * 0)
-    roi_end_x = int(width * 1)
+    roi_start_x = int(width * 0.2)
+    roi_end_x = int(width * 0.8)
 
-    # Fill only the intersection: vertical 60–100% and horizontal 25–75%
     region_of_interest[roi_start_y:roi_end_y, roi_start_x:roi_end_x] = 255
 
     return region_of_interest
