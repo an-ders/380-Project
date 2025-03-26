@@ -19,7 +19,7 @@ except BadPinFactory:
     servo = TestServo(22)
 
 FPS = 20
-TURN_DIST = 0.3
+TURN_DIST = 0.2
 MAX_VOLTAGE = 12
 MOTOR_VOLTAGE = 7
 MAX_DUTY_CYCLE = MOTOR_VOLTAGE / MAX_VOLTAGE
