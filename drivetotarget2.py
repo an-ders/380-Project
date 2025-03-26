@@ -85,7 +85,7 @@ def drive_to_target_main():
     
     pid = PID.PID()
     target = False
-    region_of_interest = get_ROI(native_height, native_width)
+    #region_of_interest = get_ROI(native_height, native_width)
     buffer = deque(maxlen=BUFFER_CAPACITY)  # mid_x
     got_line = False  # bool on whether or not line is tracked, prevents premature exit of program
     count = STARTUP_FRAMES
@@ -101,7 +101,7 @@ def drive_to_target_main():
         mask2 = cv.inRange(hsv, RED_HSV_RANGE['lower_red2'], RED_HSV_RANGE['upper_red2'])  # Create masks for red color
 
         mask = cv.bitwise_or(mask1, mask2)  # get all red
-        mask = cv.bitwise_and(mask, region_of_interest)  # isolate for ROI
+        # mask = cv.bitwise_and(mask, region_of_interest)  # isolate for ROI
         red_regions = cv.bitwise_and(frame, frame, mask=mask)  # Apply mask to isolate red regions
 
         # # Convert the mask to grayscale for edge detection
