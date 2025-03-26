@@ -147,13 +147,13 @@ def drive_to_target_main():
         cv.line(mask_bgr, (int(average_mid_x), 0), (int(average_mid_x), native_height), (255, 255, 0), 2)  
         pid.calculate_control_signal(scaled_offset)
         left_duty_cycle, right_duty_cycle = pid.get_differential_speed()
-        print(f"{left_duty_cycle:.3f}, {right_duty_cycle:.3f}")
+        #print(f"{left_duty_cycle:.3f}, {right_duty_cycle:.3f}")
         
         # THROW AWAY FIRST 10 FRAMES
         if count == 0:
             drive_motors(left_duty_cycle, right_duty_cycle)
             if abs(scaled_offset) > 0.7:  # assume turn
-                print("Delay for large offset.")
+                print("DELAY.")
                 sleep(1)  # delay turn since robot identifies turns too early
                 # MAYBE THE SLEEP ALONE WILL BE ENOUGH?
                 # if scaled_offset < 0:  # left turn
