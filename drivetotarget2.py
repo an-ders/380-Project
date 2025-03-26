@@ -147,6 +147,9 @@ def drive_to_target_main():
         # THROW AWAY FIRST 10 FRAMES
         if count == 0:
             drive_motors(left_duty_cycle, right_duty_cycle)
+            sleep(0.4)
+            stop_motors()
+            sleep(0.2)
             # if abs(scaled_offset) > 0.7:  # assume turn
             #     print("DELAY.")
             #     sleep(DELAY)  # delay turn since robot identifies turns too early
