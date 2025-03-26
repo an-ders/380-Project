@@ -48,7 +48,7 @@ class PID:
         # Calculate motor speeds
         if self.control_signal < 0: # turn left
             left_duty_cycle = MIN_DUTY_CYCLE
-            right_duty_cycle = MIN_DUTY_CYCLE + self.control_signal
+            right_duty_cycle = MIN_DUTY_CYCLE + abs(self.control_signal)
         else: # turn right or controlsignal=0
             left_duty_cycle = MIN_DUTY_CYCLE + self.control_signal
             right_duty_cycle = MIN_DUTY_CYCLE
