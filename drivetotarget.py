@@ -8,8 +8,9 @@ from collections import deque
 import matplotlib.pyplot as plt
 
 STARTUP_FRAMES = 15  # number of frames to throw away on startup
-SECTION_OF_FRAME = 0.4  # bottom percentage of frame to declare as regiion of interest
+SECTION_OF_FRAME = 0.7  # bottom percentage of frame to declare as regiion of interest
 VERBOSE = False
+DELAY = 1
 MAX_TURNS = 9
 
 MIN_LEN = 0.1  # m
@@ -154,7 +155,7 @@ def drive_to_target_main():
             drive_motors(left_duty_cycle, right_duty_cycle)
             if abs(scaled_offset) > 0.7:  # assume turn
                 print("DELAY.")
-                sleep(1)  # delay turn since robot identifies turns too early
+                sleep(DELAY)  # delay turn since robot identifies turns too early
                 # MAYBE THE SLEEP ALONE WILL BE ENOUGH?
                 # if scaled_offset < 0:  # left turn
                 #     print("Turning left.")
