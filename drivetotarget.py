@@ -3,11 +3,11 @@ from hardware import *
 import platform
 import PID
 
-KP = 0.0003  # Proportional gain
+KP = 0.00032  # Proportional gain
 KI = 0.0  # Integral gain
-KD = 0.00025  # Derivative gain
+KD = 0.00024  # Derivative gain
 
-base_speed = 0.2
+base_speed = 0.19
 
 def drive_to_target_main():
     # Initialize webcam
@@ -59,9 +59,18 @@ def drive_to_target_main():
             print(f"{left_speed:.3f}, {right_speed:.3f}")
             drive_motors(left_speed, right_speed)
 
-        elif started and numTurns == 0:
+        elif started:
+            if numTurns == 1:
+                stop_motors()
+                break;
+            stop_motors()
+            sleep(1)
+            drive_motors(-0.1, -0.1)
+            sleep(0.6)
+            stop_motors()
+            sleep(1)
             numTurns += 1
-            drive_motors(0.15, -0.15)
+            drive_motors(-0.1, 0.1)
             while True:
                 ret, frame = cap.read()
                 if not ret:
@@ -85,9 +94,6 @@ def drive_to_target_main():
                     
                     if abs(error) < 200: break
             sleep(2)
-        else:
-            stop_motors()
-            break
 
         if cv.waitKey(1) & 0xFF == ord('q'):
             break
@@ -104,5 +110,4 @@ def findMiddle(c):
 
     return -1
 
-if __name__ == "__main__":
-    drive_to_target_main()
+drive_to_target_main()
