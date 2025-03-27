@@ -23,17 +23,24 @@ BLUE_HSV_RANGE = {
 }
 
 def getError(c):
-    x = centroid(c)
-    if x == -1: return None
-
-    return (SCREEN_WIDTH // 2) - x
+    if c is None or len(c) == 0:  # Add check for empty contours
+        return None
+    try:
+        x = centroid(c)
+        if x == -1: 
+            return None
+        return (SCREEN_WIDTH // 2) - x
+    except ValueError:  # Handle any other potential errors
+        return None
 
 def centroid(c):
-    if c == None: return -1
-    c = max(c, key=cv.contourArea)
-    mom = cv.moments(c)
+    try:
+        max_contour = max(c, key=cv.contourArea)
+        mom = cv.moments(max_contour)
 
-    if mom["m00"]:
-        return int(mom["m10"] / mom["m00"])
+        if mom["m00"]:
+            return int(mom["m10"] / mom["m00"])
+    except ValueError:  # Handle case when no contours found
+        return -1
 
     return -1
