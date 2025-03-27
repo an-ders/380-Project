@@ -41,6 +41,8 @@ def drive_to_target_main():
             x = findMiddle(c)
 
             if x < 0: continue;
+            
+            started = True
 
             error = (1280 // 2) - x
             
@@ -98,7 +100,6 @@ def findMiddle(c):
     mom = cv.moments(c)
 
     if mom["m00"]:
-        started = True
         return int(mom["m10"] / mom["m00"])
 
     return -1
