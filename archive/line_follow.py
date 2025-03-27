@@ -1,7 +1,7 @@
 import cv2 as cv
 import numpy as np
 import time as timer
-from hardware import *
+from source.hardware import *
 import platform
 
 MAX_DUTY_CYCLE = 0.6

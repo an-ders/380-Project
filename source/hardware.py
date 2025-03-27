@@ -1,7 +1,6 @@
-from test_classes import *
+from .test_classes import *
 from gpiozero import Motor, RotaryEncoder, AngularServo, BadPinFactory
 from time import time, sleep
-import numpy as np
 
 # Try/except block creates variables on the global scope and prevents errors from halting runtime
 try:
@@ -22,12 +21,10 @@ except BadPinFactory:
     # right_encoder = TestEncoder(16, 26)
     # servo = TestServo(22)
 
-FPS = 20
-TURN_DIST = 0.15
 MAX_VOLTAGE = 12
 MOTOR_VOLTAGE = 7
 MAX_DUTY_CYCLE = MOTOR_VOLTAGE / MAX_VOLTAGE
-MIN_DUTY_CYCLE = 0.18
+MIN_DUTY_CYCLE = 0.19
 
 WHEEL_D = 0.0677
 WHEEL_CIRCUMFERENCE = 3.14159265359 * WHEEL_D
@@ -37,38 +34,7 @@ GEAR_RATIO = 20.4
 COUNTS_PER_OUT_REV = COUNTS_PER_REV * GEAR_RATIO
 
 LEFT_MOTOR_STEPS_PER_REV = 263
-
-RIGHT_MOTOR_FORWARD_STEPS_PER_REV = 240
-RIGHT_MOTOR_BACKWARDS_STEPS_PER_REV = 220
-
-TURN_SPEED = 0.3
-
-RED_HSV_RANGE = {
-    # Red hue range 1 (low end)
-    'lower_red1' : np.array([0, 130, 130]),
-    'upper_red1' : np.array([10, 255, 255]),
-
-    # Red hue range 2 (high end)
-    'lower_red2' : np.array([160, 100, 100]),
-    'upper_red2' : np.array([180, 255, 255])
-
-
-    # 'lower': np.array([0, 100, 130]),
-    # # THESE RED VALUES WORKED WELL FOR THE TRACK
-    # 'upper': np.array([90, 255, 255])
-    # 'lower': np.array([60, 162, 189]),  # NIGHT TRACK VALS
-    # 'upper': np.array([176, 255, 255])  # NIGHT TRACK VALS
-    # 'lower': np.array([60, 100, 160]),  # NIGHT VALS
-    # 'upper': np.array([160, 255, 255])  # NIGHT VALS
-}
-GREEN_HSV_RANGE = {
-    'lower': np.array([40, 200, 40]),
-    'upper': np.array([80, 255, 255])
-}
-BLUE_HSV_RANGE = {
-    'lower': np.array([100, 100, 100]),
-    'upper': np.array([130, 255, 255])
-}
+RIGHT_MOTOR_FORWARD_STEPS_PER_REV = 230
 
 # -------- DRIVE TRAIN -----------
 
@@ -111,14 +77,6 @@ def stop_motors():
 if __name__ == "__main__":
     try:
         print("Testing motors.")
-
-        # print("Turn right.")
-        # turn_right2()
-        # sleep(1)
-        # print("Turn left.")
-        # turn_left2()
-        # sleep(1)
-        # stop_motors()
 
         print("Right motor forwards.")
         drive_right_motor(MIN_DUTY_CYCLE)
