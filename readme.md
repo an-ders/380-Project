@@ -1,18 +1,14 @@
-use constants.py to test with 
-`ENV = "TEST"`
-
 # Structure
 
-There are 5 main parts to the program.
-1. drive forward on red line until target `drivetotarget.py`
-2. pick up lego person `pickuplegoperson.py`
-3. reverse until safezone in sight (INSERT FILE NAME)
-4. drop off lego person (INSERT FILE NAME)
-5. return to start point (INSERT FILE NAME, likely will reuse `drivetotarget.py` but make it flexible, with 2 modes)
+There are 2 main parts to the program.
+1. follow the line till you cant see any more red `follow_line.py`
+2. pick up lego person and turn around (search for new line) `pickup.py`
+
+`gameday.py` just uses the above functions to drive to the target then pickup/turn around, then drive back
 
 ## Other Files
-`constants.py` holds constants
-`img_processing.py` a module with some img related functions that are used by multiple other modules
-`hardware.py` functions interacting directly with hardware
+`hardware.py` functions and constants relating to the hardware
 `wheel_calibration.py`
-`colour_calibration.py`
+`colour_calibration.py` used for taking real world HSV values
+`test_valsses.py` used to mock hardware abstraction layer when running without hardware attached
+`vision.py` functions and constants relating to the vision and processing the line
