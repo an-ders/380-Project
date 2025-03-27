@@ -21,44 +21,17 @@ REAL_M = 1
 REAL_B = 0
 BUFFER_CAPACITY = 5
 
-def is_target_close(hsv_frame):
-    """Takes HSV frame, returns whether blue is close or not"""
-    # FIXME reactivate
-    return False
-    blue_mask = cv.inRange(hsv_frame, BLUE_HSV_RANGE['lower'], BLUE_HSV_RANGE['upper'])
-    blue_mask[:-100, :] = 0  # Keep only bottom 100 pixels
-    blue_pixels = np.where(blue_mask > 0)
-    if len(blue_pixels[1]) > 0:
-        print("Target Identified.")
-        stop_motors()
-        return True
-    else:
-        return False
-    
-def get_ROI(height, width):
-    """
-    Creates a binary mask with:
-    - The bottom 20% of the frame filled white
-    - A triangle above that, connecting the top center to the bottom corners of the 20% line
-    - The top 40% of the frame is blacked out (not part of the ROI)
+KP = 0.15  # Proportional gain
+KI = 0.0  # Integral gain
+KD = 0.0  # Derivative gain
 
-    Returns:
-        region_of_interest (np.ndarray): A binary mask (uint8) with ROI marked as 255
-    """
-    # Create a blank (black) mask
-    region_of_interest = np.zeros((height, width), dtype=np.uint8)
+base_speed = 0.1
+accel = 0.005
 
-    # Bottom 30% starting from 60% height
-    roi_start_y = int(height * (1-SECTION_OF_FRAME))  # whatever number is here, the 1-x is the bottom percent that is visible
-    roi_end_y = height
-
-    # Middle 50% in X direction
-    roi_start_x = int(width * 0)
-    roi_end_x = int(width * 1)
-
-    region_of_interest[roi_start_y:roi_end_y, roi_start_x:roi_end_x] = 255
-
-    return region_of_interest
+error = 0
+integral = 0
+derivative = 0
+previous_error = 0
 
 def drive_to_target_main():
     # Initialize webcam
@@ -67,28 +40,14 @@ def drive_to_target_main():
     else:
         cap = cv.VideoCapture(0)
 
-    native_height = int(cap.get(cv.CAP_PROP_FRAME_HEIGHT))
-    native_width = int(cap.get(cv.CAP_PROP_FRAME_WIDTH))
-
-    # Initialize plots
-    if VERBOSE:
-        plt.ion()  # Interactive mode on
-        fig, (ax1, ax2) = plt.subplots(2, 1, figsize=(6, 6))
-        line1, = ax1.plot([], [], 'r-', label="Error")
-        line2, = ax2.plot([], [], 'b-', label="Control Signal")
-        ax1.set_ylim(-1, 1)
-        ax2.set_ylim(-1, 1)
-        ax1.legend()
-        ax2.legend()
+    native_height = 340
+    native_width = 260
     
     pid = PID.PID()
     target = False
-    region_of_interest = get_ROI(native_height, native_width)
-    buffer = deque(maxlen=BUFFER_CAPACITY)  # mid_x
     got_line = False  # bool on whether or not line is tracked, prevents premature exit of program
     count = STARTUP_FRAMES
     while not target:
-        # Capture frame
         ret, frame = cap.read()
         if not ret:
             print("Failed to capture frame")
@@ -99,72 +58,46 @@ def drive_to_target_main():
         mask2 = cv.inRange(hsv, RED_HSV_RANGE['lower_red2'], RED_HSV_RANGE['upper_red2'])  # Create masks for red color
 
         mask = cv.bitwise_or(mask1, mask2)  # get all red
-        mask = cv.bitwise_and(mask, region_of_interest)  # isolate for ROI
-        red_regions = cv.bitwise_and(frame, frame, mask=mask)  # Apply mask to isolate red regions
 
-        # # Convert the mask to grayscale for edge detection
-        gray = cv.cvtColor(red_regions, cv.COLOR_BGR2GRAY)
+        c, h = cv.findContours(mask, cv.RETR_TREE, cv.CHAIN_APPROX_SIMPLE)
 
-        # # [*4] Apply Canny edge detection
-        edges = cv.Canny(gray, 50, 150)
+        if c:
+            temp = max(c, key=cv.contourArea)
+            mom = cv.moments(temp)
 
-        # # [*5] Use HoughLinesP to detect line segments
-        lines = cv.HoughLinesP(edges, 1, np.pi / 180, threshold=50, minLineLength=50, maxLineGap=10)
+            if mom["m00"]:
+                x = int(mom["m10"] / mom["m00"])
+                y = int(mom["m01"] / mom["m00"])
 
-        points = []
-        mask_bgr = cv.cvtColor(mask, cv.COLOR_GRAY2BGR)
-        if lines is not None:
-            got_line = True
-            for line in lines:
-                x1, y1, x2, y2 = line[0]  # Unpack line endpoints
-                points.append((x1, y1))
-                points.append((x2, y2))
-                cv.line(mask_bgr, (x1, y1), (x2, y2), (0, 0, 255), 2)  # Draw line bounds in red
-            highest_point = min(points, key=lambda p: p[0])  # Point with smallest x
-            lowest_point = max(points, key=lambda p: p[0])   # Point with largest x
-            mid_x = float(lowest_point[0] + (highest_point[0]-lowest_point[0])/2)
-            buffer.append(mid_x)
+            # if base_speed < base_speed_max:
+            #     base_speed = base_speed + accel
+            
+            # if base_speed > base_speed_max:
+            #     base_speed = base_speed_max
+
+            error = (native_width // 2) - x
+            integral += error
+            derivative = error - previous_error
+
+            if error < 10:
+                continue
+            
+            # Calculate control signal
+            signal = (KP * error) + (KI * integral) + (KD * derivative)
+
+            # Update previous error
+            previous_error = error
+
+            left_speed = base_speed + signal
+            right_speed = base_speed - signal
+            print(x, y)
+            # print(f"{left_speed:.3f}, {right_speed:.3f}")
 
         else:
             print("No red line detected")
             stop_motors()
 
-        # UPDATE MID_X AND OFFSET regardless of if we detect line or not
-        # TODO fix left bias by introducing "NULL" instead of 0 when red line not identified
-        # but this doesn't really matter
-        if buffer:
-            average_mid_x = sum(buffer) / len(buffer)
-            offset = (native_width/2) - average_mid_x
-            scaled_offset = -1*offset/(native_width/2)
-            # Draw vertical line of offset
-            cv.line(mask_bgr, (int(average_mid_x), 0), (int(average_mid_x), native_height), (255, 255, 0), 2)  
-            pid.calculate_control_signal(scaled_offset)
-            left_duty_cycle, right_duty_cycle = pid.get_differential_speed()
-            print(f"{left_duty_cycle:.3f}, {right_duty_cycle:.3f}")
-
-            # THROW AWAY FIRST 10 FRAMES
-            if count == 0:
-                drive_motors(left_duty_cycle, right_duty_cycle)
-                target = is_target_close(hsv)
-            else: # count is positive
-                count -= 1
-        elif got_line:  # buffer has been cleared after line identified at some point
-            print("Red line out of sight. Stopping motors.")
-            stop_motors()
-            break
-        
-
-
-        # Display the original frame with detected lines
-        cv.imshow('Red Line Detection', mask_bgr)
-        
-        # Update plots
-        if VERBOSE:
-            line1.set_data(range(len(pid.error_history)), list(pid.error_history))
-            line2.set_data(range(len(pid.control_signal_history)), list(pid.control_signal_history))
-            ax1.set_xlim(0, len(pid.error_history))
-            ax2.set_xlim(0, len(pid.control_signal_history))
-            plt.pause(0.001)
+        # Display the original frame with detected lines    
 
         # Break loop on user interrupt (e.g., 'q' key press)
         if cv.waitKey(1) & 0xFF == ord('q'):

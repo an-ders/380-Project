@@ -45,11 +45,11 @@ TURN_SPEED = 0.3
 
 RED_HSV_RANGE = {
     # Red hue range 1 (low end)
-    'lower_red1' : np.array([0, 100, 100]),
+    'lower_red1' : np.array([0, 130, 130]),
     'upper_red1' : np.array([10, 255, 255]),
 
     # Red hue range 2 (high end)
-    'lower_red2' : np.array([170, 100, 100]),
+    'lower_red2' : np.array([160, 100, 100]),
     'upper_red2' : np.array([180, 255, 255])
 
 
