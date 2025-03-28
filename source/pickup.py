@@ -15,6 +15,7 @@ def pickup(cap):
     stop_motors()
     sleep(1)
     drive_motors(-0.1, 0.1)
+    sleep(0.5)
     
     # Search for the new red line when turning around
     while True:

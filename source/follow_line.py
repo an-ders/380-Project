@@ -14,6 +14,8 @@ def follow_line(cap):
     error = 0
     derivative = 0
     previous_error = 0
+    
+    drive_motors(0.1, 0,1)
 
     while True:
         ret, frame = cap.read()
